@@ -1,0 +1,1760 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Until He Comes — Privacy &amp; Terms</title>
+<style>
+  /*
+    Same quiet, monochrome vocabulary as the app itself — no accent color, hierarchy from
+    weight/size/opacity alone (see ContentView.swift's own 0.35/0.5/0.7/0.9 opacity steps on
+    white-on-black). Light is white-ground/black-ink instead of the app's fixed black-ground/
+    white-ink, mirrored through the same opacity steps, so the two themes read as one system,
+    not two different designs.
+  */
+  :root {
+    --ground: #ffffff;
+    --ink: rgba(0, 0, 0, 0.92);
+    --ink-70: rgba(0, 0, 0, 0.7);
+    --ink-50: rgba(0, 0, 0, 0.5);
+    --ink-35: rgba(0, 0, 0, 0.35);
+    --hairline: rgba(0, 0, 0, 0.12);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #050505;
+      --ink: rgba(255, 255, 255, 0.92);
+      --ink-70: rgba(255, 255, 255, 0.7);
+      --ink-50: rgba(255, 255, 255, 0.5);
+      --ink-35: rgba(255, 255, 255, 0.35);
+      --hairline: rgba(255, 255, 255, 0.12);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #050505;
+    --ink: rgba(255, 255, 255, 0.92);
+    --ink-70: rgba(255, 255, 255, 0.7);
+    --ink-50: rgba(255, 255, 255, 0.5);
+    --ink-35: rgba(255, 255, 255, 0.35);
+    --hairline: rgba(255, 255, 255, 0.12);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+    padding: 0 24px;
+  }
+
+  .wrap {
+    max-width: 620px;
+    margin: 0 auto;
+  }
+
+  header {
+    padding-top: 64px;
+    padding-bottom: 28px;
+  }
+
+  .brand-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+
+  .brand {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-50);
+  }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  #theme-toggle {
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: none;
+    border: 1px solid var(--hairline);
+    border-radius: 20px;
+    padding: 5px 12px;
+    color: var(--ink-50);
+    cursor: pointer;
+  }
+
+  #theme-toggle:hover { color: var(--ink); }
+
+  #theme-toggle:focus-visible {
+    outline: 1px solid var(--ink-50);
+    outline-offset: 2px;
+  }
+
+  /* Same list and order as the app's own language picker (SupportedLanguage.pickerOrder):
+     English first, then alphabetical by endonym. */
+  #lang-select {
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    background: none;
+    border: 1px solid var(--hairline);
+    border-radius: 20px;
+    padding: 5px 12px;
+    color: var(--ink-70);
+    cursor: pointer;
+  }
+
+  #lang-select option { color: initial; }
+
+  #lang-select:focus-visible {
+    outline: 1px solid var(--ink-50);
+    outline-offset: 2px;
+  }
+
+  nav {
+    display: flex;
+    gap: 22px;
+  }
+
+  nav button {
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0 0 8px;
+    background: none;
+    color: var(--ink-35);
+    border: none;
+    border-bottom: 1.5px solid transparent;
+    cursor: pointer;
+  }
+
+  nav button.active {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+
+  nav button:focus-visible {
+    outline: 1px solid var(--ink-50);
+    outline-offset: 4px;
+  }
+
+  main { padding: 8px 0 80px; }
+
+  article[hidden] { display: none; }
+  .lang[hidden] { display: none; }
+
+  h1 {
+    font-weight: 600;
+    font-size: 1.6rem;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+
+  .meta {
+    font-size: 0.78rem;
+    color: var(--ink-35);
+    margin-bottom: 40px;
+  }
+
+  h2 {
+    font-weight: 500;
+    font-size: 0.74rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-50);
+    margin: 36px 0 12px;
+  }
+
+  .lang > h2:first-of-type { margin-top: 0; }
+
+  p, li {
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: var(--ink-70);
+    max-width: 58ch;
+  }
+
+  p { margin: 0 0 14px; }
+
+  ul { margin: 0 0 14px; padding-left: 1.1em; }
+  li { margin-bottom: 6px; }
+
+  strong { font-weight: 600; color: var(--ink); }
+
+  code {
+    font-family: ui-monospace, 'SF Mono', monospace;
+    font-size: 0.88em;
+    color: var(--ink-70);
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--hairline);
+    margin: 44px 0;
+  }
+
+  footer {
+    padding: 24px 0 50px;
+    color: var(--ink-35);
+    font-size: 0.72rem;
+  }
+
+  @media (max-width: 480px) {
+    header { padding-top: 44px; }
+    h1 { font-size: 1.4rem; }
+  }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand-row">
+      <div class="brand">Until He Comes</div>
+      <div class="toggle-row">
+        <select id="lang-select" aria-label="Language">
+          <option value="en">English</option>
+          <option value="cs">Čeština</option>
+          <option value="da">Dansk</option>
+          <option value="de">Deutsch</option>
+          <option value="es">Español</option>
+          <option value="fr">Français</option>
+          <option value="it">Italiano</option>
+          <option value="hu">Magyar</option>
+          <option value="nl">Nederlands</option>
+          <option value="nb">Norsk</option>
+          <option value="pt">Português</option>
+          <option value="ro">Română</option>
+          <option value="sv">Svenska</option>
+          <option value="ru">Русский</option>
+          <option value="ja">日本語</option>
+          <option value="zhHans">简体中文</option>
+          <option value="zhHant">繁體中文</option>
+          <option value="ko">한국어</option>
+        </select>
+        <button id="theme-toggle" type="button" aria-label="Switch to dark mode">Dark</button>
+      </div>
+    </div>
+    <nav id="tabs">
+      <button data-tab="privacy" class="active" data-en="Privacy Policy" data-pt="Política de Privacidade" data-es="Política de Privacidad" data-de="Datenschutzerklärung" data-fr="Politique de Confidentialité" data-it="Informativa sulla Privacy" data-zh-hans="隐私政策" data-zh-hant="隱私政策" data-ru="Политика конфиденциальности" data-ja="プライバシーポリシー" data-ko="개인정보 처리방침" data-nl="Privacybeleid" data-sv="Integritetspolicy" data-nb="Personvernerklæring" data-da="Privatlivspolitik" data-hu="Adatvédelmi Szabályzat" data-cs="Zásady Ochrany Osobních Údajů" data-ro="Politica de Confidențialitate">Privacy Policy</button>
+      <button data-tab="terms" data-en="Terms of Use" data-pt="Termos de Utilização" data-es="Términos de Uso" data-de="Nutzungsbedingungen" data-fr="Conditions d'Utilisation" data-it="Termini di Utilizzo" data-zh-hans="使用条款" data-zh-hant="使用條款" data-ru="Условия использования" data-ja="利用規約" data-ko="이용약관" data-nl="Gebruiksvoorwaarden" data-sv="Användarvillkor" data-nb="Bruksvilkår" data-da="Brugsvilkår" data-hu="Felhasználási Feltételek" data-cs="Podmínky Užívání" data-ro="Termeni de Utilizare">Terms of Use</button>
+    </nav>
+  </header>
+
+  <main>
+    <article id="privacy">
+      <div class="lang" data-lang="en">
+        <h1>Privacy Policy</h1>
+        <div class="meta">Effective September 28, 2026 · Applies to the Until He Comes iOS app</div>
+
+        <h2>Overview</h2>
+        <p>Until He Comes is a native iOS app that displays a continuously changing, non-chronological view of time alongside a short Christian message about watching and being ready for Christ's return. In short: Until He Comes does not collect, store, or transmit any personal data. It has no backend, no accounts, and no network connection at all — everything it shows and saves stays on your device. The rest of this page explains that plainly, section by section.</p>
+
+        <h2>Information We Do Not Collect</h2>
+        <p>Until He Comes does not connect to the internet in normal use. It does not have user accounts, sign-in, analytics, advertising, crash reporting, or any third-party tracking software embedded in it. We — the developer — never receive any information about you or your device, because nothing is ever sent anywhere.</p>
+
+        <h2>Information Stored On Your Device</h2>
+        <p>The app does store a small amount of information, but only locally, on your own device, using standard iOS storage:</p>
+        <ul>
+          <li><strong>Preferences</strong> — your Animation Intensity, Haptics, and Language settings, saved via iOS's standard <code>UserDefaults</code>.</li>
+          <li><strong>Reflections</strong> — if you choose to write a private reflection or prayer note, it is saved as a local file in the app's own storage area on your device. It is never uploaded, synced, or shared, and only you can read it, from within the app.</li>
+        </ul>
+        <p>None of this leaves your device. Deleting the app deletes this data with it. We have no way to see, back up, or recover it, because we never had a copy.</p>
+
+        <h2>Photos &amp; the Home Screen Widget</h2>
+        <p>The background photos you see in the app and its widget are bundled inside the app itself — the app does not access your device's photo library, camera, or any of your personal photos.</p>
+
+        <h2>Microphone &amp; Speech Recognition</h2>
+        <p>If you choose to speak a reflection instead of typing it, Until He Comes uses your device's microphone only while you are recording, and only after you have given permission. Your speech is turned into text entirely on your device, using Apple's on-device speech recognition — the audio is never saved, never sent to Apple or to us, and never leaves your device. Only the resulting text is kept, as part of your reflection, stored locally like any other. If your device can't transcribe your language on-device, the microphone option is simply not shown.</p>
+
+        <h2>Notifications</h2>
+        <p>If you turn on notifications, the app schedules occasional reminders on your device using iOS's local notifications. They are created and delivered entirely on your device — no push service, no server, and no information sent anywhere. You can turn them off at any time in the app's Settings or in iOS Settings.</p>
+
+        <h2>Scripture Text</h2>
+        <p>Scripture quotations shown in the app are drawn from public-domain Bible translations, chosen to avoid licensing restrictions on text that ships inside the app. English uses the <strong>World English Bible (WEB)</strong>; Portuguese uses the <strong>João Ferreira de Almeida</strong> translation (1911/1914 revision); Spanish uses the <strong>Reina-Valera</strong> translation (1909); German uses the <strong>Luther Bible</strong> (1545); French uses the <strong>Martin Bible</strong> (1744); Italian uses the <strong>Riveduta Bible</strong> (1927); Chinese (Simplified and Traditional) uses the <strong>Union Version</strong> (和合本); Russian uses the <strong>Synodal Translation</strong> (1876); Japanese uses the <strong>Meiji/Taishō Translation</strong> (文語訳); Korean uses the <strong>Korean Revised Version</strong> (개역한글); Dutch uses the <strong>Statenvertaling</strong> (1637); Swedish uses the <strong>1917 Church Bible</strong>; Norwegian (Bokmål) uses the <strong>Bibelselskapet</strong> translation; Danish uses the <strong>1871 Danish Bible</strong>; Hungarian uses the <strong>Károli Bible</strong> (1590); Czech uses the <strong>Bible Kralická</strong> (1613); Romanian uses the <strong>Cornilescu</strong> translation — also public domain. As Until He Comes adds support for additional languages, each will use its own public-domain translation, for the same reason.</p>
+
+        <h2>Children's Privacy</h2>
+        <p>Because Until He Comes does not collect any personal data from anyone, regardless of age, it does not knowingly collect information from children either.</p>
+
+        <h2>Changes to This Policy</h2>
+        <p>If this policy ever changes — for instance, if a future version of the app adds a feature that does involve a network connection — this page will be updated and the "Effective" date above will change accordingly.</p>
+
+        <h2>Contact Us</h2>
+        <p>Questions about this policy can be sent to gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="pt" hidden>
+        <h1>Política de Privacidade</h1>
+        <div class="meta">Em vigor desde 28 de setembro de 2026 · Aplica-se à aplicação iOS Until He Comes</div>
+
+        <h2>Visão Geral</h2>
+        <p>O Until He Comes é uma aplicação iOS nativa que apresenta uma visão do tempo em constante mudança e não cronológica, acompanhada de uma breve mensagem cristã sobre vigiar e estar pronto para o regresso de Cristo. Em resumo: o Until He Comes não recolhe, guarda nem transmite quaisquer dados pessoais. Não tem servidor, não tem contas e não tem qualquer ligação à internet — tudo o que mostra e guarda permanece no teu dispositivo. O resto desta página explica isso claramente, secção a secção.</p>
+
+        <h2>Informação Que Não Recolhemos</h2>
+        <p>O Until He Comes não se liga à internet em uso normal. Não tem contas de utilizador, início de sessão, análise de dados, publicidade, relatórios de falhas, nem qualquer software de rastreio de terceiros embutido. Nós — o programador — nunca recebemos qualquer informação sobre ti ou o teu dispositivo, porque nada é alguma vez enviado para lado nenhum.</p>
+
+        <h2>Informação Guardada no Teu Dispositivo</h2>
+        <p>A aplicação guarda uma pequena quantidade de informação, mas apenas localmente, no teu próprio dispositivo, através do armazenamento padrão do iOS:</p>
+        <ul>
+          <li><strong>Preferências</strong> — as tuas definições de Intensidade de Animação, Vibração e Idioma, guardadas através do <code>UserDefaults</code> padrão do iOS.</li>
+          <li><strong>Reflexões</strong> — se escolheres escrever uma reflexão ou nota de oração privada, esta é guardada como um ficheiro local na própria área de armazenamento da aplicação no teu dispositivo. Nunca é enviada, sincronizada ou partilhada, e só tu a podes ler, dentro da aplicação.</li>
+        </ul>
+        <p>Nada disto sai do teu dispositivo. Apagar a aplicação apaga esta informação com ela. Não temos forma de ver, guardar cópia ou recuperar estes dados, porque nunca tivemos uma cópia.</p>
+
+        <h2>Fotografias e o Widget do Ecrã Principal</h2>
+        <p>As fotografias de fundo que vês na aplicação e no seu widget estão incluídas dentro da própria aplicação — a aplicação não acede à biblioteca de fotos, câmara ou quaisquer fotografias pessoais do teu dispositivo.</p>
+
+        <h2>Microfone e Reconhecimento de Voz</h2>
+        <p>Se escolheres falar uma reflexão em vez de a escrever, o Until He Comes usa o microfone do teu dispositivo apenas enquanto estás a gravar, e só depois de teres dado permissão. A tua voz é convertida em texto inteiramente no teu dispositivo, através do reconhecimento de voz da Apple no próprio dispositivo — o áudio nunca é guardado, nunca é enviado para a Apple nem para nós, e nunca sai do teu dispositivo. Apenas o texto resultante é guardado, como parte da tua reflexão, localmente como qualquer outra. Se o teu dispositivo não conseguir transcrever o teu idioma localmente, a opção do microfone simplesmente não aparece.</p>
+
+        <h2>Notificações</h2>
+        <p>Se ativares as notificações, a aplicação agenda lembretes ocasionais no teu dispositivo através das notificações locais do iOS. São criadas e entregues inteiramente no teu dispositivo — sem serviço de push, sem servidor e sem qualquer informação enviada para lado nenhum. Podes desativá-las a qualquer momento nas Definições da aplicação ou nas Definições do iOS.</p>
+
+        <h2>Texto Bíblico</h2>
+        <p>As citações bíblicas apresentadas na aplicação provêm de traduções da Bíblia em domínio público, escolhidas para evitar restrições de licenciamento sobre texto incluído dentro da aplicação. O inglês utiliza a <strong>World English Bible (WEB)</strong>; o português utiliza a tradução de <strong>João Ferreira de Almeida</strong> (revisão de 1911/1914); o espanhol utiliza a tradução <strong>Reina-Valera</strong> (1909); o alemão utiliza a <strong>Bíblia de Lutero</strong> (1545); o francês utiliza a <strong>Bíblia Martin</strong> (1744); o italiano utiliza a <strong>Bíblia Riveduta</strong> (1927); o chinês (simplificado e tradicional) utiliza a <strong>Union Version</strong> (和合本); o russo utiliza a <strong>Tradução Sinodal</strong> (1876); o japonês utiliza a <strong>tradução Meiji/Taishō</strong> (文語訳); o coreano utiliza a <strong>Korean Revised Version</strong> (개역한글); o neerlandês utiliza a <strong>Statenvertaling</strong> (1637); o sueco utiliza a <strong>Bíblia da Igreja de 1917</strong>; o norueguês (Bokmål) utiliza a tradução <strong>Bibelselskapet</strong>; o dinamarquês utiliza a <strong>Bíblia Dinamarquesa de 1871</strong>; o húngaro utiliza a <strong>Bíblia Károli</strong> (1590); o checo utiliza a <strong>Bíblia Kralická</strong> (1613); o romeno utiliza a tradução <strong>Cornilescu</strong> — também em domínio público. À medida que o Until He Comes passa a suportar mais idiomas, cada um utilizará a sua própria tradução em domínio público, pela mesma razão.</p>
+
+        <h2>Privacidade de Crianças</h2>
+        <p>Como o Until He Comes não recolhe quaisquer dados pessoais de ninguém, independentemente da idade, também não recolhe intencionalmente informação de crianças.</p>
+
+        <h2>Alterações a Esta Política</h2>
+        <p>Se esta política alguma vez mudar — por exemplo, se uma versão futura da aplicação introduzir uma funcionalidade que envolva ligação à internet — esta página será atualizada e a data "Em vigor" acima será alterada em conformidade.</p>
+
+        <h2>Contacta-nos</h2>
+        <p>Questões sobre esta política podem ser enviadas para gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="es" hidden>
+        <h1>Política de Privacidad</h1>
+        <div class="meta">Vigente desde el 28 de septiembre de 2026 · Se aplica a la aplicación iOS Until He Comes</div>
+
+        <h2>Visión General</h2>
+        <p>Until He Comes es una aplicación nativa para iOS que muestra una vista del tiempo en constante cambio y no cronológica, junto con un breve mensaje cristiano sobre vigilar y estar preparado para el regreso de Cristo. En resumen: Until He Comes no recopila, almacena ni transmite ningún dato personal. No tiene servidor, no tiene cuentas y no tiene ninguna conexión a internet — todo lo que muestra y guarda permanece en tu dispositivo. El resto de esta página lo explica con claridad, sección por sección.</p>
+
+        <h2>Información Que No Recopilamos</h2>
+        <p>Until He Comes no se conecta a internet en su uso normal. No tiene cuentas de usuario, inicio de sesión, análisis de datos, publicidad, informes de fallos, ni ningún software de seguimiento de terceros integrado. Nosotros — el desarrollador — nunca recibimos ninguna información sobre ti ni sobre tu dispositivo, porque nada se envía jamás a ningún sitio.</p>
+
+        <h2>Información Almacenada en Tu Dispositivo</h2>
+        <p>La aplicación sí almacena una pequeña cantidad de información, pero solo localmente, en tu propio dispositivo, mediante el almacenamiento estándar de iOS:</p>
+        <ul>
+          <li><strong>Preferencias</strong> — tus ajustes de Intensidad de Animación, Vibración e Idioma, guardados mediante el <code>UserDefaults</code> estándar de iOS.</li>
+          <li><strong>Reflexiones</strong> — si eliges escribir una reflexión o nota de oración privada, se guarda como un archivo local en el propio espacio de almacenamiento de la aplicación en tu dispositivo. Nunca se sube, sincroniza ni comparte, y solo tú puedes leerla, desde dentro de la aplicación.</li>
+        </ul>
+        <p>Nada de esto sale de tu dispositivo. Eliminar la aplicación elimina también estos datos. No tenemos forma de ver, respaldar o recuperar esta información, porque nunca tuvimos una copia.</p>
+
+        <h2>Fotos y el Widget de la Pantalla de Inicio</h2>
+        <p>Las fotos de fondo que ves en la aplicación y en su widget están incluidas dentro de la propia aplicación — la aplicación no accede a la biblioteca de fotos, la cámara ni a ninguna foto personal de tu dispositivo.</p>
+
+        <h2>Micrófono y Reconocimiento de Voz</h2>
+        <p>Si eliges hablar una reflexión en lugar de escribirla, Until He Comes usa el micrófono de tu dispositivo solo mientras estás grabando, y solo después de que hayas dado permiso. Tu voz se convierte en texto completamente en tu dispositivo, mediante el reconocimiento de voz de Apple en el propio dispositivo — el audio nunca se guarda, nunca se envía a Apple ni a nosotros, y nunca sale de tu dispositivo. Solo se conserva el texto resultante, como parte de tu reflexión, guardado localmente como cualquier otra. Si tu dispositivo no puede transcribir tu idioma localmente, la opción del micrófono simplemente no aparece.</p>
+
+        <h2>Notificaciones</h2>
+        <p>Si activas las notificaciones, la aplicación programa recordatorios ocasionales en tu dispositivo mediante las notificaciones locales de iOS. Se crean y se entregan completamente en tu dispositivo — sin servicio push, sin servidor y sin enviar información a ningún sitio. Puedes desactivarlas en cualquier momento en los Ajustes de la aplicación o en los Ajustes de iOS.</p>
+
+        <h2>Texto Bíblico</h2>
+        <p>Las citas bíblicas que aparecen en la aplicación provienen de traducciones de la Biblia de dominio público, elegidas para evitar restricciones de licencia sobre el texto incluido dentro de la aplicación. El inglés utiliza la <strong>World English Bible (WEB)</strong>; el portugués utiliza la traducción de <strong>João Ferreira de Almeida</strong> (revisión de 1911/1914); el español utiliza la traducción <strong>Reina-Valera</strong> (1909); el alemán utiliza la <strong>Biblia de Lutero</strong> (1545); el francés utiliza la <strong>Biblia Martin</strong> (1744); el italiano utiliza la <strong>Biblia Riveduta</strong> (1927); el chino (simplificado y tradicional) utiliza la <strong>Union Version</strong> (和合本); el ruso utiliza la <strong>Traducción Sinodal</strong> (1876); el japonés utiliza la <strong>traducción Meiji/Taishō</strong> (文語訳); el coreano utiliza la <strong>Korean Revised Version</strong> (개역한글); el neerlandés utiliza la <strong>Statenvertaling</strong> (1637); el sueco utiliza la <strong>Biblia de la Iglesia de 1917</strong>; el noruego (Bokmål) utiliza la traducción <strong>Bibelselskapet</strong>; el danés utiliza la <strong>Biblia Danesa de 1871</strong>; el húngaro utiliza la <strong>Biblia Károli</strong> (1590); el checo utiliza la <strong>Biblia Kralická</strong> (1613); el rumano utiliza la traducción <strong>Cornilescu</strong> — también de dominio público. A medida que Until He Comes incorpore más idiomas, cada uno utilizará su propia traducción de dominio público, por la misma razón.</p>
+
+        <h2>Privacidad de los Niños</h2>
+        <p>Como Until He Comes no recopila ningún dato personal de nadie, sin importar su edad, tampoco recopila intencionadamente información de niños.</p>
+
+        <h2>Cambios a Esta Política</h2>
+        <p>Si esta política cambia alguna vez — por ejemplo, si una futura versión de la aplicación añade una función que sí implique una conexión a internet — esta página se actualizará y la fecha "Vigente" anterior cambiará en consecuencia.</p>
+
+        <h2>Contáctanos</h2>
+        <p>Las preguntas sobre esta política pueden enviarse a gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="de" hidden>
+        <h1>Datenschutzerklärung</h1>
+        <div class="meta">Gültig ab 28. September 2026 · Gilt für die iOS-App Until He Comes</div>
+
+        <h2>Überblick</h2>
+        <p>Until He Comes ist eine native iOS-App, die eine sich ständig verändernde, nicht-chronologische Ansicht der Zeit zusammen mit einer kurzen christlichen Botschaft über das Wachen und Bereitsein für die Wiederkunft Christi zeigt. Kurz gesagt: Until He Comes erhebt, speichert oder überträgt keine personenbezogenen Daten. Die App hat keinen Server, keine Konten und keine Internetverbindung — alles, was sie anzeigt und speichert, bleibt auf deinem Gerät. Der Rest dieser Seite erklärt das ausführlich, Abschnitt für Abschnitt.</p>
+
+        <h2>Informationen, die wir nicht erheben</h2>
+        <p>Until He Comes verbindet sich im normalen Gebrauch nicht mit dem Internet. Die App hat keine Benutzerkonten, keine Anmeldung, keine Analysefunktionen, keine Werbung, keine Absturzberichte und keine eingebettete Tracking-Software von Drittanbietern. Wir — der Entwickler — erhalten niemals irgendwelche Informationen über dich oder dein Gerät, weil nichts jemals irgendwohin gesendet wird.</p>
+
+        <h2>Auf deinem Gerät gespeicherte Informationen</h2>
+        <p>Die App speichert eine kleine Menge an Informationen, aber nur lokal, auf deinem eigenen Gerät, über den Standardspeicher von iOS:</p>
+        <ul>
+          <li><strong>Einstellungen</strong> — deine Einstellungen für Animationsintensität, Vibration und Sprache, gespeichert über das iOS-Standardsystem <code>UserDefaults</code>.</li>
+          <li><strong>Reflexionen</strong> — wenn du dich entscheidest, eine private Reflexion oder Gebetsnotiz zu schreiben, wird sie als lokale Datei im eigenen Speicherbereich der App auf deinem Gerät gespeichert. Sie wird niemals hochgeladen, synchronisiert oder geteilt, und nur du kannst sie lesen, innerhalb der App.</li>
+        </ul>
+        <p>Nichts davon verlässt dein Gerät. Das Löschen der App löscht auch diese Daten. Wir haben keine Möglichkeit, sie einzusehen, zu sichern oder wiederherzustellen, weil wir nie eine Kopie hatten.</p>
+
+        <h2>Fotos &amp; das Home-Screen-Widget</h2>
+        <p>Die Hintergrundfotos, die du in der App und ihrem Widget siehst, sind in der App selbst enthalten — die App greift nicht auf die Fotomediathek, die Kamera oder persönliche Fotos deines Geräts zu.</p>
+
+        <h2>Mikrofon &amp; Spracherkennung</h2>
+        <p>Wenn du eine Reflexion sprechen statt tippen möchtest, verwendet Until He Comes das Mikrofon deines Geräts nur während der Aufnahme und erst, nachdem du die Erlaubnis erteilt hast. Deine Sprache wird vollständig auf deinem Gerät in Text umgewandelt, mit Apples Spracherkennung auf dem Gerät — die Audioaufnahme wird nie gespeichert, nie an Apple oder an uns gesendet und verlässt nie dein Gerät. Nur der entstandene Text wird als Teil deiner Reflexion behalten und wie jede andere lokal gespeichert. Wenn dein Gerät deine Sprache nicht auf dem Gerät transkribieren kann, wird die Mikrofon-Option einfach nicht angezeigt.</p>
+
+        <h2>Mitteilungen</h2>
+        <p>Wenn du Mitteilungen aktivierst, plant die App gelegentliche Erinnerungen auf deinem Gerät über die lokalen Mitteilungen von iOS. Sie werden vollständig auf deinem Gerät erstellt und zugestellt — kein Push-Dienst, kein Server und keine Informationen, die irgendwohin gesendet werden. Du kannst sie jederzeit in den Einstellungen der App oder in den iOS-Einstellungen deaktivieren.</p>
+
+        <h2>Bibeltext</h2>
+        <p>Die in der App gezeigten Bibelzitate stammen aus gemeinfreien Bibelübersetzungen, ausgewählt, um Lizenzeinschränkungen für in der App enthaltenen Text zu vermeiden. Englisch verwendet die <strong>World English Bible (WEB)</strong>; Portugiesisch verwendet die Übersetzung von <strong>João Ferreira de Almeida</strong> (Revision 1911/1914); Spanisch verwendet die <strong>Reina-Valera</strong>-Übersetzung (1909); Deutsch verwendet die <strong>Lutherbibel</strong> (1545); Französisch verwendet die <strong>Martin-Bibel</strong> (1744); Italienisch verwendet die <strong>Riveduta-Bibel</strong> (1927); Chinesisch (vereinfacht und traditionell) verwendet die <strong>Union Version</strong> (和合本); Russisch verwendet die <strong>Synodalübersetzung</strong> (1876); Japanisch verwendet die <strong>Meiji/Taishō-Übersetzung</strong> (文語訳); Koreanisch verwendet die <strong>Korean Revised Version</strong> (개역한글); Niederländisch verwendet die <strong>Statenvertaling</strong> (1637); Schwedisch verwendet die <strong>Kirchenbibel von 1917</strong>; Norwegisch (Bokmål) verwendet die <strong>Bibelselskapet</strong>-Übersetzung; Dänisch verwendet die <strong>dänische Bibel von 1871</strong>; Ungarisch verwendet die <strong>Károli-Bibel</strong> (1590); Tschechisch verwendet die <strong>Bibel Kralická</strong> (1613); Rumänisch verwendet die <strong>Cornilescu-Übersetzung</strong> — ebenfalls gemeinfrei. Sobald Until He Comes weitere Sprachen unterstützt, wird jede aus demselben Grund ihre eigene gemeinfreie Übersetzung verwenden.</p>
+
+        <h2>Datenschutz für Kinder</h2>
+        <p>Da Until He Comes von niemandem personenbezogene Daten erhebt, unabhängig vom Alter, erhebt die App auch nicht wissentlich Informationen von Kindern.</p>
+
+        <h2>Änderungen dieser Richtlinie</h2>
+        <p>Sollte sich diese Richtlinie jemals ändern — zum Beispiel, wenn eine zukünftige Version der App eine Funktion hinzufügt, die eine Internetverbindung erfordert — wird diese Seite aktualisiert und das oben genannte Datum „Gültig ab" entsprechend geändert.</p>
+
+        <h2>Kontakt</h2>
+        <p>Fragen zu dieser Richtlinie können an gustavoalvesalvesgustavo@gmail.com gesendet werden.</p>
+      </div>
+
+      <div class="lang" data-lang="fr" hidden>
+        <h1>Politique de Confidentialité</h1>
+        <div class="meta">En vigueur depuis le 28 septembre 2026 · S'applique à l'application iOS Until He Comes</div>
+
+        <h2>Aperçu</h2>
+        <p>Until He Comes est une application iOS native qui affiche une vue du temps en constante évolution et non chronologique, accompagnée d'un bref message chrétien sur la vigilance et la préparation au retour du Christ. En bref : Until He Comes ne collecte, ne stocke ni ne transmet aucune donnée personnelle. Elle n'a ni serveur, ni comptes, ni aucune connexion internet — tout ce qu'elle affiche et enregistre reste sur votre appareil. Le reste de cette page l'explique clairement, section par section.</p>
+
+        <h2>Informations Que Nous Ne Collectons Pas</h2>
+        <p>Until He Comes ne se connecte pas à internet en usage normal. Elle n'a pas de comptes utilisateur, de connexion, d'analyse de données, de publicité, de rapports de plantage, ni aucun logiciel de suivi tiers intégré. Nous — le développeur — ne recevons jamais aucune information sur vous ou votre appareil, car rien n'est jamais envoyé nulle part.</p>
+
+        <h2>Informations Stockées Sur Votre Appareil</h2>
+        <p>L'application stocke une petite quantité d'informations, mais uniquement localement, sur votre propre appareil, via le stockage standard d'iOS :</p>
+        <ul>
+          <li><strong>Préférences</strong> — vos réglages d'Intensité d'Animation, de Vibration et de Langue, enregistrés via le <code>UserDefaults</code> standard d'iOS.</li>
+          <li><strong>Réflexions</strong> — si vous choisissez d'écrire une réflexion ou une note de prière privée, elle est enregistrée comme un fichier local dans l'espace de stockage propre de l'application sur votre appareil. Elle n'est jamais téléchargée, synchronisée ou partagée, et vous seul pouvez la lire, depuis l'application.</li>
+        </ul>
+        <p>Rien de tout cela ne quitte votre appareil. Supprimer l'application supprime ces données avec elle. Nous n'avons aucun moyen de les voir, de les sauvegarder ou de les récupérer, car nous n'en avons jamais eu de copie.</p>
+
+        <h2>Photos et le Widget de l'Écran d'Accueil</h2>
+        <p>Les photos d'arrière-plan que vous voyez dans l'application et son widget sont intégrées à l'application elle-même — l'application n'accède pas à la bibliothèque de photos, à l'appareil photo ou à vos photos personnelles.</p>
+
+        <h2>Microphone et Reconnaissance Vocale</h2>
+        <p>Si vous choisissez de dicter une réflexion au lieu de la taper, Until He Comes utilise le microphone de votre appareil uniquement pendant l'enregistrement, et seulement après que vous en avez donné l'autorisation. Votre voix est convertie en texte entièrement sur votre appareil, grâce à la reconnaissance vocale d'Apple intégrée à l'appareil — l'audio n'est jamais enregistré, jamais envoyé à Apple ni à nous, et ne quitte jamais votre appareil. Seul le texte obtenu est conservé, dans votre réflexion, stocké localement comme toute autre. Si votre appareil ne peut pas transcrire votre langue localement, l'option du microphone n'apparaît tout simplement pas.</p>
+
+        <h2>Notifications</h2>
+        <p>Si vous activez les notifications, l'application programme des rappels occasionnels sur votre appareil grâce aux notifications locales d'iOS. Elles sont créées et délivrées entièrement sur votre appareil — aucun service push, aucun serveur et aucune information envoyée nulle part. Vous pouvez les désactiver à tout moment dans les Réglages de l'application ou dans les Réglages d'iOS.</p>
+
+        <h2>Texte Biblique</h2>
+        <p>Les citations bibliques affichées dans l'application proviennent de traductions de la Bible du domaine public, choisies pour éviter les restrictions de licence sur le texte inclus dans l'application. L'anglais utilise la <strong>World English Bible (WEB)</strong> ; le portugais utilise la traduction de <strong>João Ferreira de Almeida</strong> (révision de 1911/1914) ; l'espagnol utilise la traduction <strong>Reina-Valera</strong> (1909) ; l'allemand utilise la <strong>Bible de Luther</strong> (1545) ; le français utilise la <strong>Bible Martin</strong> (1744) ; l'italien utilise la <strong>Bible Riveduta</strong> (1927) ; le chinois (simplifié et traditionnel) utilise la <strong>Union Version</strong> (和合本) ; le russe utilise la <strong>Traduction synodale</strong> (1876) ; le japonais utilise la <strong>traduction Meiji/Taishō</strong> (文語訳) ; le coréen utilise la <strong>Korean Revised Version</strong> (개역한글) ; le néerlandais utilise la <strong>Statenvertaling</strong> (1637) ; le suédois utilise la <strong>Bible de l'Église de 1917</strong> ; le norvégien (Bokmål) utilise la traduction <strong>Bibelselskapet</strong> ; le danois utilise la <strong>Bible danoise de 1871</strong> ; le hongrois utilise la <strong>Bible de Károli</strong> (1590) ; le tchèque utilise la <strong>Bible de Kralice</strong> (1613) ; le roumain utilise la traduction <strong>Cornilescu</strong> — également du domaine public. À mesure qu'Until He Comes prendra en charge d'autres langues, chacune utilisera sa propre traduction du domaine public, pour la même raison.</p>
+
+        <h2>Confidentialité des Enfants</h2>
+        <p>Comme Until He Comes ne collecte aucune donnée personnelle de qui que ce soit, quel que soit son âge, elle ne collecte pas non plus sciemment d'informations auprès des enfants.</p>
+
+        <h2>Modifications de Cette Politique</h2>
+        <p>Si cette politique venait à changer — par exemple, si une future version de l'application ajoutait une fonctionnalité impliquant une connexion internet — cette page serait mise à jour et la date « En vigueur » ci-dessus changerait en conséquence.</p>
+
+        <h2>Contactez-nous</h2>
+        <p>Les questions concernant cette politique peuvent être envoyées à gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="it" hidden>
+        <h1>Informativa sulla Privacy</h1>
+        <div class="meta">In vigore dal 28 settembre 2026 · Si applica all'app iOS Until He Comes</div>
+
+        <h2>Panoramica</h2>
+        <p>Until He Comes è un'app iOS nativa che mostra una vista del tempo in continuo cambiamento e non cronologica, accompagnata da un breve messaggio cristiano sul vigilare ed essere pronti per il ritorno di Cristo. In breve: Until He Comes non raccoglie, non memorizza né trasmette alcun dato personale. Non ha un server, non ha account e non ha alcuna connessione a internet — tutto ciò che mostra e salva rimane sul tuo dispositivo. Il resto di questa pagina lo spiega chiaramente, sezione per sezione.</p>
+
+        <h2>Informazioni Che Non Raccogliamo</h2>
+        <p>Until He Comes non si connette a internet nell'uso normale. Non ha account utente, accesso, analisi, pubblicità, segnalazione di arresti anomali, né alcun software di tracciamento di terze parti incorporato. Noi — lo sviluppatore — non riceviamo mai alcuna informazione su di te o sul tuo dispositivo, perché nulla viene mai inviato da nessuna parte.</p>
+
+        <h2>Informazioni Memorizzate Sul Tuo Dispositivo</h2>
+        <p>L'app memorizza una piccola quantità di informazioni, ma solo localmente, sul tuo dispositivo, tramite l'archiviazione standard di iOS:</p>
+        <ul>
+          <li><strong>Preferenze</strong> — le tue impostazioni di Intensità dell'Animazione, Feedback Aptico e Lingua, salvate tramite lo standard <code>UserDefaults</code> di iOS.</li>
+          <li><strong>Riflessioni</strong> — se scegli di scrivere una riflessione privata o una nota di preghiera, viene salvata come file locale nell'area di archiviazione dell'app sul tuo dispositivo. Non viene mai caricata, sincronizzata o condivisa, e solo tu puoi leggerla, dall'interno dell'app.</li>
+        </ul>
+        <p>Niente di tutto ciò lascia il tuo dispositivo. Eliminare l'app elimina anche questi dati. Non abbiamo modo di vederli, salvarli o recuperarli, perché non ne abbiamo mai avuto una copia.</p>
+
+        <h2>Foto e il Widget della Schermata Home</h2>
+        <p>Le foto di sfondo che vedi nell'app e nel suo widget sono incluse all'interno dell'app stessa — l'app non accede alla libreria foto, alla fotocamera o a qualsiasi foto personale del tuo dispositivo.</p>
+
+        <h2>Microfono e Riconoscimento Vocale</h2>
+        <p>Se scegli di dettare una riflessione invece di scriverla, Until He Comes usa il microfono del tuo dispositivo solo mentre stai registrando, e solo dopo che hai dato il permesso. La tua voce viene trasformata in testo interamente sul tuo dispositivo, tramite il riconoscimento vocale di Apple sul dispositivo — l'audio non viene mai salvato, mai inviato ad Apple o a noi, e non lascia mai il tuo dispositivo. Viene conservato solo il testo risultante, come parte della tua riflessione, salvato localmente come qualsiasi altra. Se il tuo dispositivo non può trascrivere la tua lingua localmente, l'opzione del microfono semplicemente non viene mostrata.</p>
+
+        <h2>Notifiche</h2>
+        <p>Se attivi le notifiche, l'app programma promemoria occasionali sul tuo dispositivo tramite le notifiche locali di iOS. Vengono create e recapitate interamente sul tuo dispositivo — nessun servizio push, nessun server e nessuna informazione inviata da nessuna parte. Puoi disattivarle in qualsiasi momento nelle Impostazioni dell'app o nelle Impostazioni di iOS.</p>
+
+        <h2>Testo Biblico</h2>
+        <p>Le citazioni bibliche mostrate nell'app provengono da traduzioni della Bibbia di pubblico dominio, scelte per evitare restrizioni di licenza sul testo incluso nell'app. L'inglese utilizza la <strong>World English Bible (WEB)</strong>; il portoghese utilizza la traduzione di <strong>João Ferreira de Almeida</strong> (revisione 1911/1914); lo spagnolo utilizza la traduzione <strong>Reina-Valera</strong> (1909); il tedesco utilizza la <strong>Bibbia di Lutero</strong> (1545); il francese utilizza la <strong>Bibbia Martin</strong> (1744); l'italiano utilizza la <strong>Bibbia Riveduta</strong> (1927); il cinese (semplificato e tradizionale) utilizza la <strong>Union Version</strong> (和合本); il russo utilizza la <strong>Traduzione Sinodale</strong> (1876); il giapponese utilizza la <strong>traduzione Meiji/Taishō</strong> (文語訳); il coreano utilizza la <strong>Korean Revised Version</strong> (개역한글); l'olandese utilizza la <strong>Statenvertaling</strong> (1637); lo svedese utilizza la <strong>Bibbia della Chiesa del 1917</strong>; il norvegese (Bokmål) utilizza la traduzione <strong>Bibelselskapet</strong>; il danese utilizza la <strong>Bibbia Danese del 1871</strong>; l'ungherese utilizza la <strong>Bibbia di Károli</strong> (1590); il ceco utilizza la <strong>Bibbia di Kralice</strong> (1613); il rumeno utilizza la traduzione <strong>Cornilescu</strong> — anch'essa di pubblico dominio. Man mano che Until He Comes aggiunge il supporto per altre lingue, ciascuna utilizzerà la propria traduzione di pubblico dominio, per lo stesso motivo.</p>
+
+        <h2>Privacy dei Minori</h2>
+        <p>Poiché Until He Comes non raccoglie alcun dato personale da nessuno, indipendentemente dall'età, non raccoglie consapevolmente informazioni dai minori.</p>
+
+        <h2>Modifiche a Questa Informativa</h2>
+        <p>Se questa informativa dovesse mai cambiare — per esempio, se una futura versione dell'app aggiungesse una funzionalità che coinvolge una connessione a internet — questa pagina verrà aggiornata e la data "In vigore" sopra cambierà di conseguenza.</p>
+
+        <h2>Contattaci</h2>
+        <p>Domande su questa informativa possono essere inviate a gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="zhHans" hidden>
+        <h1>隐私政策</h1>
+        <div class="meta">自2026年9月28日起生效 · 适用于 Until He Comes iOS 应用</div>
+
+        <h2>概述</h2>
+        <p>Until He Comes 是一款原生 iOS 应用，展示不断变化、非按时间顺序排列的时间视图，并附有一条关于警醒并预备迎接基督再来的简短基督教信息。简而言之：Until He Comes 不收集、不存储、也不传输任何个人数据。它没有后端服务器，没有账户，也完全没有网络连接——它显示和保存的一切都留在你的设备上。本页的其余部分将逐节清楚说明这一点。</p>
+
+        <h2>我们不收集的信息</h2>
+        <p>Until He Comes 在正常使用中不会连接互联网。它没有用户账户、登录、数据分析、广告、崩溃报告，也没有嵌入任何第三方跟踪软件。我们——开发者——永远不会收到关于你或你设备的任何信息，因为没有任何东西被发送到任何地方。</p>
+
+        <h2>存储在你设备上的信息</h2>
+        <p>该应用确实存储少量信息，但仅存储在你自己的设备本地，使用 iOS 的标准存储方式：</p>
+        <ul>
+          <li><strong>偏好设置</strong> ——你的动画强度、触感反馈和语言设置，通过 iOS 标准的 <code>UserDefaults</code> 保存。</li>
+          <li><strong>反思</strong> ——如果你选择写一条私人反思或祷告笔记，它会以本地文件的形式保存在应用自己的设备存储区域中。它绝不会被上传、同步或分享，只有你能在应用内阅读它。</li>
+        </ul>
+        <p>这些都不会离开你的设备。删除应用会一并删除这些数据。我们无法查看、备份或恢复它们，因为我们从未拥有过副本。</p>
+
+        <h2>照片与主屏幕小组件</h2>
+        <p>你在应用及其小组件中看到的背景照片都内置在应用本身之中——应用不会访问你设备的照片库、相机或任何个人照片。</p>
+
+        <h2>麦克风与语音识别</h2>
+        <p>如果你选择用说话代替打字来记录反思，Until He Comes 仅在你录音期间、且在你授予权限之后才会使用设备的麦克风。你的语音完全在设备上被转换为文字，使用的是 Apple 的设备端语音识别——音频绝不会被保存，绝不会发送给 Apple 或我们，也绝不会离开你的设备。只有转换后的文字会作为你反思的一部分保留下来，与其他反思一样保存在本地。如果你的设备无法在本地转写你的语言，麦克风选项就不会显示。</p>
+
+        <h2>通知</h2>
+        <p>如果你开启通知，应用会使用 iOS 的本地通知在你的设备上安排偶尔的提醒。它们完全在你的设备上创建和送达——没有推送服务，没有服务器，也不会向任何地方发送任何信息。你可以随时在应用的设置或 iOS 设置中关闭它们。</p>
+
+        <h2>经文文本</h2>
+        <p>应用中显示的经文引用取自公共领域的圣经译本，选用这些译本是为了避免应用内文本涉及许可限制。英文使用<strong>《世界英语圣经》（WEB）</strong>；葡萄牙文使用<strong>若昂·费雷拉·德·阿尔梅达译本</strong>（1911/1914年修订版）；西班牙文使用<strong>雷纳-瓦莱拉译本</strong>（1909年）；德文使用<strong>路德圣经</strong>（1545年）；法文使用<strong>马丁圣经</strong>（1744年）；意大利文使用<strong>利维度塔圣经</strong>（1927年）；中文（简体和繁体）使用<strong>和合本</strong>；俄文使用<strong>俄文正教会译本</strong>（1876年）；日文使用<strong>明治/大正译本</strong>（文语译本）；韩文使用<strong>韩文修订译本</strong>（개역한글）；荷兰文使用<strong>司坦译本</strong>（Statenvertaling，1637年）；瑞典文使用<strong>1917年教会圣经</strong>；挪威文（Bokmål）使用<strong>Bibelselskapet译本</strong>；丹麦文使用<strong>1871年丹麦圣经</strong>；匈牙利文使用<strong>卡罗利圣经</strong>（1590年）；捷克文使用<strong>克拉利采圣经</strong>（1613年）；罗马尼亚文使用<strong>科尔尼列斯库译本</strong>——同样属于公共领域。随着 Until He Comes 支持更多语言，每种语言都将出于同样的原因使用其各自的公共领域译本。</p>
+
+        <h2>儿童隐私</h2>
+        <p>由于 Until He Comes 不收集任何人的个人数据，无论年龄大小，它也不会故意收集儿童的信息。</p>
+
+        <h2>本政策的变更</h2>
+        <p>如果本政策发生变化——例如，如果应用的未来版本添加了涉及网络连接的功能——本页面将会更新，上方的"生效"日期也会相应变更。</p>
+
+        <h2>联系我们</h2>
+        <p>关于本政策的问题可以发送至 gustavoalvesalvesgustavo@gmail.com。</p>
+      </div>
+
+      <div class="lang" data-lang="zhHant" hidden>
+        <h1>隱私政策</h1>
+        <div class="meta">自2026年9月28日起生效 · 適用於 Until He Comes iOS 應用程式</div>
+
+        <h2>概述</h2>
+        <p>Until He Comes 是一款原生 iOS 應用程式，展示不斷變化、非按時間順序排列的時間視圖，並附有一條關於警醒並預備迎接基督再來的簡短基督教信息。簡而言之：Until He Comes 不收集、不儲存、也不傳輸任何個人資料。它沒有後端伺服器，沒有帳戶，也完全沒有網路連線——它顯示和儲存的一切都留在你的裝置上。本頁的其餘部分將逐節清楚說明這一點。</p>
+
+        <h2>我們不收集的資訊</h2>
+        <p>Until He Comes 在正常使用中不會連接網際網路。它沒有使用者帳戶、登入、數據分析、廣告、當機報告，也沒有嵌入任何第三方追蹤軟體。我們——開發者——永遠不會收到關於你或你裝置的任何資訊，因為沒有任何東西被傳送到任何地方。</p>
+
+        <h2>儲存在你裝置上的資訊</h2>
+        <p>該應用程式確實儲存少量資訊，但僅儲存在你自己的裝置本地，使用 iOS 的標準儲存方式：</p>
+        <ul>
+          <li><strong>偏好設定</strong> ——你的動畫強度、觸感回饋和語言設定，透過 iOS 標準的 <code>UserDefaults</code> 儲存。</li>
+          <li><strong>反思</strong> ——如果你選擇寫一條私人反思或禱告筆記，它會以本地檔案的形式儲存在應用程式自己的裝置儲存區域中。它絕不會被上傳、同步或分享，只有你能在應用程式內閱讀它。</li>
+        </ul>
+        <p>這些都不會離開你的裝置。刪除應用程式會一併刪除這些資料。我們無法查看、備份或復原它們，因為我們從未擁有過副本。</p>
+
+        <h2>照片與主畫面小工具</h2>
+        <p>你在應用程式及其小工具中看到的背景照片都內建在應用程式本身之中——應用程式不會存取你裝置的照片圖庫、相機或任何個人照片。</p>
+
+        <h2>麥克風與語音辨識</h2>
+        <p>如果你選擇用說話代替打字來記錄反思，Until He Comes 僅在你錄音期間、且在你授予權限之後才會使用裝置的麥克風。你的語音完全在裝置上被轉換為文字，使用的是 Apple 的裝置端語音辨識——音訊絕不會被儲存，絕不會傳送給 Apple 或我們，也絕不會離開你的裝置。只有轉換後的文字會作為你反思的一部分保留下來，與其他反思一樣儲存在本地。如果你的裝置無法在本地轉寫你的語言，麥克風選項就不會顯示。</p>
+
+        <h2>通知</h2>
+        <p>如果你開啟通知，應用程式會使用 iOS 的本地通知在你的裝置上安排偶爾的提醒。它們完全在你的裝置上建立和送達——沒有推播服務，沒有伺服器，也不會向任何地方傳送任何資訊。你可以隨時在應用程式的設定或 iOS 設定中關閉它們。</p>
+
+        <h2>經文文本</h2>
+        <p>應用程式中顯示的經文引用取自公共領域的聖經譯本，選用這些譯本是為了避免應用程式內文本涉及授權限制。英文使用<strong>《世界英語聖經》（WEB）</strong>；葡萄牙文使用<strong>若昂·費雷拉·德·阿爾梅達譯本</strong>（1911/1914年修訂版）；西班牙文使用<strong>雷納-瓦萊拉譯本</strong>（1909年）；德文使用<strong>路德聖經</strong>（1545年）；法文使用<strong>馬丁聖經</strong>（1744年）；義大利文使用<strong>利維度塔聖經</strong>（1927年）；中文（簡體和繁體）使用<strong>和合本</strong>；俄文使用<strong>俄文正教會譯本</strong>（1876年）；日文使用<strong>明治/大正譯本</strong>（文語譯本）；韓文使用<strong>韓文修訂譯本</strong>（개역한글）；荷蘭文使用<strong>司坦譯本</strong>（Statenvertaling，1637年）；瑞典文使用<strong>1917年教會聖經</strong>；挪威文（Bokmål）使用<strong>Bibelselskapet譯本</strong>；丹麥文使用<strong>1871年丹麥聖經</strong>；匈牙利文使用<strong>卡羅利聖經</strong>（1590年）；捷克文使用<strong>克拉利采聖經</strong>（1613年）；羅馬尼亞文使用<strong>科爾尼列斯庫譯本</strong>——同樣屬於公共領域。隨著 Until He Comes 支援更多語言，每種語言都將出於同樣的原因使用其各自的公共領域譯本。</p>
+
+        <h2>兒童隱私</h2>
+        <p>由於 Until He Comes 不收集任何人的個人資料，無論年齡大小，它也不會故意收集兒童的資訊。</p>
+
+        <h2>本政策的變更</h2>
+        <p>如果本政策發生變化——例如，如果應用程式的未來版本新增了涉及網路連線的功能——本頁面將會更新，上方的「生效」日期也會相應變更。</p>
+
+        <h2>聯絡我們</h2>
+        <p>關於本政策的問題可以傳送至 gustavoalvesalvesgustavo@gmail.com。</p>
+      </div>
+
+      <div class="lang" data-lang="ru" hidden>
+        <h1>Политика конфиденциальности</h1>
+        <div class="meta">Действует с 28 сентября 2026 года · Применяется к приложению Until He Comes для iOS</div>
+
+        <h2>Обзор</h2>
+        <p>Until He Comes — нативное приложение для iOS, которое показывает постоянно меняющееся, нехронологическое представление времени вместе с коротким христианским посланием о бодрствовании и готовности ко второму пришествию Христа. Коротко говоря: Until He Comes не собирает, не хранит и не передаёт никакие личные данные. У приложения нет сервера, нет учётных записей и вообще нет подключения к интернету — всё, что оно показывает и сохраняет, остаётся на вашем устройстве. Остальная часть этой страницы подробно объясняет это, раздел за разделом.</p>
+
+        <h2>Информация, которую мы не собираем</h2>
+        <p>Until He Comes не подключается к интернету при обычном использовании. У приложения нет учётных записей пользователей, входа в систему, аналитики, рекламы, отчётов о сбоях или какого-либо стороннего отслеживающего программного обеспечения. Мы — разработчик — никогда не получаем никакой информации о вас или вашем устройстве, потому что ничего никуда не отправляется.</p>
+
+        <h2>Информация, хранимая на вашем устройстве</h2>
+        <p>Приложение действительно хранит небольшое количество информации, но только локально, на вашем собственном устройстве, с использованием стандартного хранилища iOS:</p>
+        <ul>
+          <li><strong>Настройки</strong> — ваши параметры Интенсивности анимации, Вибрации и Языка, сохранённые через стандартный <code>UserDefaults</code> iOS.</li>
+          <li><strong>Размышления</strong> — если вы решите написать личное размышление или молитвенную заметку, она сохраняется как локальный файл в собственной области хранения приложения на вашем устройстве. Она никогда не загружается, не синхронизируется и не передаётся, и прочитать её можете только вы, внутри приложения.</li>
+        </ul>
+        <p>Ничто из этого не покидает ваше устройство. Удаление приложения удаляет эти данные вместе с ним. У нас нет возможности увидеть, сохранить резервную копию или восстановить их, потому что у нас никогда не было копии.</p>
+
+        <h2>Фотографии и виджет главного экрана</h2>
+        <p>Фоновые фотографии, которые вы видите в приложении и его виджете, встроены в само приложение — приложение не имеет доступа к библиотеке фотографий, камере или каким-либо личным фотографиям вашего устройства.</p>
+
+        <h2>Микрофон и распознавание речи</h2>
+        <p>Если вы решите надиктовать размышление вместо того, чтобы печатать его, Until He Comes использует микрофон вашего устройства только во время записи и только после того, как вы дали разрешение. Ваша речь преобразуется в текст полностью на вашем устройстве с помощью встроенного распознавания речи Apple — аудио никогда не сохраняется, никогда не отправляется ни Apple, ни нам и никогда не покидает ваше устройство. Сохраняется только полученный текст — как часть вашего размышления, локально, как и любое другое. Если ваше устройство не может распознавать ваш язык локально, кнопка микрофона просто не отображается.</p>
+
+        <h2>Уведомления</h2>
+        <p>Если вы включите уведомления, приложение будет время от времени планировать напоминания на вашем устройстве с помощью локальных уведомлений iOS. Они создаются и доставляются полностью на вашем устройстве — без push-сервиса, без сервера и без отправки какой-либо информации куда-либо. Вы можете отключить их в любой момент в настройках приложения или в настройках iOS.</p>
+
+        <h2>Текст Писания</h2>
+        <p>Библейские цитаты, показанные в приложении, взяты из переводов Библии, находящихся в общественном достоянии, выбранных во избежание лицензионных ограничений на текст, встроенный в приложение. Английский использует <strong>World English Bible (WEB)</strong>; португальский — перевод <strong>Жуана Феррейры де Алмейды</strong> (редакция 1911/1914 года); испанский — перевод <strong>Рейна-Валера</strong> (1909 год); немецкий — <strong>Библию Лютера</strong> (1545 год); французский — <strong>Библию Мартина</strong> (1744 год); итальянский — <strong>Библию Ривведута</strong> (1927 год); китайский (упрощённый и традиционный) — <strong>Union Version</strong> (和合本); русский использует <strong>Синодальный перевод</strong> (1876 год); японский — <strong>перевод Мэйдзи/Тайсё</strong> (文語訳); корейский — <strong>Корейский исправленный перевод</strong> (개역한글); нидерландский — <strong>Statenvertaling</strong> (1637 год); шведский — <strong>Церковную Библию 1917 года</strong>; норвежский (букмол) — перевод <strong>Bibelselskapet</strong>; датский — <strong>датскую Библию 1871 года</strong>; венгерский — <strong>Библию Кароли</strong> (1590 год); чешский — <strong>Библию Кралицкую</strong> (1613 год); румынский — перевод <strong>Корнилеску</strong> — все они находятся в общественном достоянии. По мере того как Until He Comes добавляет поддержку новых языков, каждый будет использовать свой собственный перевод из общественного достояния, по той же причине.</p>
+
+        <h2>Конфиденциальность детей</h2>
+        <p>Поскольку Until He Comes не собирает никаких личных данных ни от кого, независимо от возраста, приложение также сознательно не собирает информацию от детей.</p>
+
+        <h2>Изменения в этой политике</h2>
+        <p>Если эта политика когда-либо изменится — например, если будущая версия приложения добавит функцию, требующую подключения к интернету — эта страница будет обновлена, и дата «Действует с» выше будет соответственно изменена.</p>
+
+        <h2>Свяжитесь с нами</h2>
+        <p>Вопросы об этой политике можно отправлять на gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="ja" hidden>
+        <h1>プライバシーポリシー</h1>
+        <div class="meta">2026年9月28日発効 · iOSアプリ「Until He Comes」に適用されます</div>
+
+        <h2>概要</h2>
+        <p>Untilは、キリストの再臨に備えて目を覚まし待ち望むことについての短いキリスト教的メッセージとともに、絶え間なく変化する非時系列の時間表示を行うネイティブiOSアプリです。要するに、Untilは個人データを一切収集、保存、送信しません。バックエンドサーバーもアカウントもなく、ネットワーク接続も一切ありません——表示・保存されるものはすべて、あなたの端末内にとどまります。このページの残りの部分では、それをセクションごとに分かりやすく説明します。</p>
+
+        <h2>収集しない情報</h2>
+        <p>Untilは通常の使用においてインターネットに接続しません。ユーザーアカウント、サインイン、アナリティクス、広告、クラッシュレポート、または組み込まれたサードパーティの追跡ソフトウェアは一切ありません。私たち——開発者——は、あなたやあなたの端末に関する情報を受け取ることは決してありません。何も、どこにも送信されないからです。</p>
+
+        <h2>端末に保存される情報</h2>
+        <p>このアプリは少量の情報を保存しますが、それはあなた自身の端末上にのみ、iOSの標準的な保存方式を使ってローカルに保存されます。</p>
+        <ul>
+          <li><strong>設定</strong> ——アニメーションの強さ、触覚フィードバック、言語の設定が、iOS標準の<code>UserDefaults</code>を通じて保存されます。</li>
+          <li><strong>振り返り</strong> ——個人的な振り返りや祈りのメモを書くことを選んだ場合、それはあなたの端末上にあるアプリ専用の保存領域にローカルファイルとして保存されます。それがアップロード、同期、共有されることは決してなく、アプリ内であなただけがそれを読むことができます。</li>
+        </ul>
+        <p>これらはいずれもあなたの端末から出ることはありません。アプリを削除すると、このデータも一緒に削除されます。私たちにはそれを見たり、バックアップしたり、復元したりする手段がありません。私たちがそのコピーを持ったことは一度もないからです。</p>
+
+        <h2>写真とホーム画面ウィジェット</h2>
+        <p>アプリとそのウィジェットに表示される背景写真は、アプリ自体に内蔵されています——アプリはあなたの端末の写真ライブラリ、カメラ、または個人的な写真にアクセスすることはありません。</p>
+
+        <h2>マイクと音声認識</h2>
+        <p>振り返りを入力する代わりに話すことを選んだ場合、Until He Comesはあなたが許可した後、録音している間だけ端末のマイクを使用します。あなたの声は、Appleのオンデバイス音声認識によって完全に端末上でテキストに変換されます——音声が保存されることはなく、Appleや私たちに送信されることもなく、あなたの端末から出ることもありません。残るのは変換されたテキストだけで、振り返りの一部として他の振り返りと同じようにローカルに保存されます。お使いの端末があなたの言語をオンデバイスで書き起こせない場合、マイクのオプションは表示されません。</p>
+
+        <h2>通知</h2>
+        <p>通知をオンにすると、アプリはiOSのローカル通知を使って、あなたの端末上に時折リマインダーを予約します。通知はすべて端末上で作成・配信されます——プッシュサービスもサーバーもなく、どこにも情報は送信されません。アプリの設定またはiOSの設定から、いつでもオフにできます。</p>
+
+        <h2>聖書のテキスト</h2>
+        <p>アプリに表示される聖書の引用は、アプリ内に含まれるテキストのライセンス上の制約を避けるために選ばれた、パブリックドメインの聖書訳から取られています。英語は<strong>World English Bible (WEB)</strong>、ポルトガル語は<strong>ジョアン・フェレイラ・デ・アルメイダ訳</strong>（1911/1914年改訂版）、スペイン語は<strong>レイナ・バレラ訳</strong>（1909年）、ドイツ語は<strong>ルター訳聖書</strong>（1545年）、フランス語は<strong>マルタン訳聖書</strong>（1744年）、イタリア語は<strong>リヴェドゥータ訳聖書</strong>（1927年）、中国語（簡体字・繁体字）は<strong>和合本</strong>、ロシア語は<strong>シノド訳</strong>（1876年）、日本語は<strong>明治元訳・大正改訳（文語訳）</strong>、韓国語は<strong>改訳（개역한글）</strong>、オランダ語は<strong>スターテン訳（Statenvertaling）</strong>（1637年）、スウェーデン語は<strong>1917年教会訳</strong>、ノルウェー語（ブークモール）は<strong>ビーベルセルスカペト訳</strong>、デンマーク語は<strong>1871年デンマーク語訳</strong>、ハンガリー語は<strong>カーロリ聖書</strong>（1590年）、チェコ語は<strong>クラリツェ聖書</strong>（1613年）、ルーマニア語は<strong>コルニレスク訳</strong>を使用しており、これらもすべてパブリックドメインです。Untilが対応言語を追加していく際も、同じ理由でそれぞれがパブリックドメインの訳を使用します。</p>
+
+        <h2>子どものプライバシー</h2>
+        <p>Untilは年齢を問わず誰からも個人データを収集しないため、子どもからも意図的に情報を収集することはありません。</p>
+
+        <h2>本ポリシーの変更</h2>
+        <p>本ポリシーが将来変更される場合——たとえば、アプリの将来のバージョンがネットワーク接続を伴う機能を追加する場合など——このページは更新され、上記の「発効」日もそれに応じて変更されます。</p>
+
+        <h2>お問い合わせ</h2>
+        <p>本ポリシーに関するご質問は gustavoalvesalvesgustavo@gmail.com までお送りください。</p>
+      </div>
+
+      <div class="lang" data-lang="ko" hidden>
+        <h1>개인정보 처리방침</h1>
+        <div class="meta">2026년 9월 28일부터 시행 · Until He Comes iOS 앱에 적용됩니다</div>
+
+        <h2>개요</h2>
+        <p>Until은 그리스도의 재림을 위해 깨어 준비하는 것에 관한 짧은 기독교 메시지와 함께, 끊임없이 변화하는 비연대기적 시간 화면을 보여주는 네이티브 iOS 앱입니다. 한마디로: Until은 어떠한 개인정보도 수집, 저장, 전송하지 않습니다. 백엔드 서버도 없고, 계정도 없으며, 네트워크 연결 자체가 전혀 없습니다 — 앱이 보여주고 저장하는 모든 것은 오직 당신의 기기 안에만 남습니다. 이 페이지의 나머지 부분은 그것을 섹션별로 명확히 설명합니다.</p>
+
+        <h2>수집하지 않는 정보</h2>
+        <p>Until은 일반적인 사용 중에 인터넷에 연결되지 않습니다. 사용자 계정, 로그인, 분석, 광고, 충돌 보고서, 또는 내장된 제3자 추적 소프트웨어가 전혀 없습니다. 저희 — 개발자 — 는 당신이나 당신의 기기에 대한 어떠한 정보도 받지 않습니다. 아무것도 어디로도 전송되지 않기 때문입니다.</p>
+
+        <h2>기기에 저장되는 정보</h2>
+        <p>이 앱은 소량의 정보를 저장하지만, 이는 오직 당신 자신의 기기에, iOS의 표준 저장 방식을 사용하여 로컬로 저장됩니다:</p>
+        <ul>
+          <li><strong>환경설정</strong> — 애니메이션 강도, 햅틱 피드백, 언어 설정이 iOS 표준 <code>UserDefaults</code>를 통해 저장됩니다.</li>
+          <li><strong>묵상</strong> — 개인적인 묵상이나 기도 메모를 작성하기로 선택하면, 이는 당신의 기기에 있는 앱 자체의 저장 영역에 로컬 파일로 저장됩니다. 이는 절대 업로드, 동기화, 공유되지 않으며, 오직 당신만이 앱 내에서 이를 읽을 수 있습니다.</li>
+        </ul>
+        <p>이 중 어느 것도 당신의 기기를 벗어나지 않습니다. 앱을 삭제하면 이 데이터도 함께 삭제됩니다. 저희는 이를 확인하거나, 백업하거나, 복구할 방법이 없습니다. 저희가 그 사본을 가진 적이 없기 때문입니다.</p>
+
+        <h2>사진 및 홈 화면 위젯</h2>
+        <p>앱과 위젯에서 보이는 배경 사진은 앱 자체에 내장되어 있습니다 — 앱은 당신 기기의 사진 라이브러리, 카메라, 또는 개인 사진에 전혀 접근하지 않습니다.</p>
+
+        <h2>마이크 및 음성 인식</h2>
+        <p>묵상을 입력하는 대신 말로 하기를 선택하면, Until He Comes은 당신이 권한을 허용한 후 녹음하는 동안에만 기기의 마이크를 사용합니다. 당신의 음성은 Apple의 기기 내 음성 인식을 통해 전적으로 기기 안에서 텍스트로 변환됩니다 — 오디오는 절대 저장되지 않고, Apple이나 저희에게 전송되지 않으며, 당신의 기기를 벗어나지 않습니다. 변환된 텍스트만 묵상의 일부로 남아, 다른 묵상과 마찬가지로 로컬에 저장됩니다. 기기가 당신의 언어를 기기 내에서 받아쓸 수 없는 경우, 마이크 옵션은 표시되지 않습니다.</p>
+
+        <h2>알림</h2>
+        <p>알림을 켜면, 앱은 iOS의 로컬 알림을 사용해 당신의 기기에 가끔씩 알림을 예약합니다. 알림은 전적으로 기기 안에서 생성되고 전달됩니다 — 푸시 서비스도, 서버도 없으며, 어떤 정보도 어디로도 전송되지 않습니다. 앱의 설정이나 iOS 설정에서 언제든지 끌 수 있습니다.</p>
+
+        <h2>성경 본문</h2>
+        <p>앱에 표시되는 성경 인용문은 앱 내에 포함된 텍스트에 대한 라이선스 제한을 피하기 위해 선택된 퍼블릭 도메인 성경 번역본에서 가져온 것입니다. 영어는 <strong>World English Bible (WEB)</strong>을, 포르투갈어는 <strong>주앙 페헤이라 지 알메이다 역</strong>(1911/1914년 개정판)을, 스페인어는 <strong>레이나-발레라 역</strong>(1909년)을, 독일어는 <strong>루터 성경</strong>(1545년)을, 프랑스어는 <strong>마르탱 성경</strong>(1744년)을, 이탈리아어는 <strong>리베두타 성경</strong>(1927년)을, 중국어(간체 및 번체)는 <strong>화합본(和合本)</strong>을, 러시아어는 <strong>시노달 역</strong>(1876년)을, 일본어는 <strong>메이지/다이쇼 역(문어역)</strong>을, 네덜란드어는 <strong>스타턴 역(Statenvertaling)</strong>(1637년)을 사용하며, 한국어는 <strong>개역한글</strong>을, 스웨덴어는 <strong>1917년 교회 성경</strong>을, 노르웨이어(보크몰)는 <strong>비벨셀스카페트 역</strong>을, 덴마크어는 <strong>1871년 덴마크어 성경</strong>을, 헝가리어는 <strong>카롤리 성경</strong>(1590년)을, 체코어는 <strong>크랄리체 성경</strong>(1613년)을, 루마니아어는 <strong>코르닐레스쿠 역</strong>을 사용합니다 — 이들 모두 퍼블릭 도메인입니다. Until이 더 많은 언어를 지원하게 되면서, 각 언어는 같은 이유로 고유한 퍼블릭 도메인 번역본을 사용할 것입니다.</p>
+
+        <h2>아동의 개인정보</h2>
+        <p>Until은 연령과 관계없이 누구로부터도 개인정보를 수집하지 않으므로, 아동으로부터도 고의로 정보를 수집하지 않습니다.</p>
+
+        <h2>본 방침의 변경</h2>
+        <p>본 방침이 변경되는 경우 — 예를 들어, 앱의 향후 버전이 네트워크 연결을 필요로 하는 기능을 추가하는 경우 — 이 페이지는 업데이트되며, 위의 "시행" 날짜도 그에 따라 변경됩니다.</p>
+
+        <h2>문의하기</h2>
+        <p>본 방침에 관한 문의는 gustavoalvesalvesgustavo@gmail.com으로 보내실 수 있습니다.</p>
+      </div>
+
+      <div class="lang" data-lang="nl" hidden>
+        <h1>Privacybeleid</h1>
+        <div class="meta">Van kracht sinds 28 september 2026 · Van toepassing op de Until He Comes iOS-app</div>
+
+        <h2>Overzicht</h2>
+        <p>Until He Comes is een native iOS-app die een voortdurend veranderend, niet-chronologisch beeld van de tijd toont, samen met een kort christelijk bericht over waakzaamheid en gereedheid voor de wederkomst van Christus. Kortom: Until He Comes verzamelt, bewaart of verzendt geen persoonsgegevens. De app heeft geen server, geen accounts en helemaal geen internetverbinding — alles wat hij toont en opslaat, blijft op je apparaat. De rest van deze pagina legt dat duidelijk uit, sectie voor sectie.</p>
+
+        <h2>Informatie Die We Niet Verzamelen</h2>
+        <p>Until He Comes maakt bij normaal gebruik geen verbinding met internet. De app heeft geen gebruikersaccounts, geen inlogfunctie, geen analytics, geen advertenties, geen crashrapportage en geen ingebouwde trackingsoftware van derden. Wij — de ontwikkelaar — ontvangen nooit enige informatie over jou of je apparaat, omdat er nooit iets naar waar dan ook wordt verzonden.</p>
+
+        <h2>Informatie Opgeslagen Op Je Apparaat</h2>
+        <p>De app slaat wel een kleine hoeveelheid informatie op, maar alleen lokaal, op je eigen apparaat, via de standaardopslag van iOS:</p>
+        <ul>
+          <li><strong>Voorkeuren</strong> — je instellingen voor Animatie-intensiteit, Trilfeedback en Taal, opgeslagen via de standaard <code>UserDefaults</code> van iOS.</li>
+          <li><strong>Overdenkingen</strong> — als je ervoor kiest een privé-overdenking of gebedsnotitie te schrijven, wordt deze opgeslagen als een lokaal bestand in het eigen opslaggebied van de app op je apparaat. Het wordt nooit geüpload, gesynchroniseerd of gedeeld, en alleen jij kunt het lezen, vanuit de app zelf.</li>
+        </ul>
+        <p>Niets hiervan verlaat je apparaat. Het verwijderen van de app verwijdert deze gegevens ermee. We hebben geen manier om ze te zien, back-uppen of herstellen, omdat we er nooit een kopie van hebben gehad.</p>
+
+        <h2>Foto's &amp; de Startscherm-widget</h2>
+        <p>De achtergrondfoto's die je in de app en zijn widget ziet, zitten ingebouwd in de app zelf — de app heeft geen toegang tot je fotobibliotheek, camera of persoonlijke foto's.</p>
+
+        <h2>Microfoon &amp; Spraakherkenning</h2>
+        <p>Als je ervoor kiest een overdenking in te spreken in plaats van te typen, gebruikt Until He Comes de microfoon van je apparaat alleen tijdens het opnemen, en pas nadat je toestemming hebt gegeven. Je spraak wordt volledig op je apparaat omgezet in tekst, met de spraakherkenning van Apple op het apparaat zelf — de audio wordt nooit opgeslagen, nooit naar Apple of naar ons gestuurd en verlaat nooit je apparaat. Alleen de resulterende tekst wordt bewaard, als deel van je overdenking, lokaal opgeslagen zoals elke andere. Als je apparaat je taal niet op het apparaat zelf kan transcriberen, wordt de microfoonoptie gewoon niet getoond.</p>
+
+        <h2>Meldingen</h2>
+        <p>Als je meldingen inschakelt, plant de app af en toe herinneringen op je apparaat via de lokale meldingen van iOS. Ze worden volledig op je apparaat aangemaakt en afgeleverd — geen pushdienst, geen server en geen informatie die ergens naartoe wordt gestuurd. Je kunt ze op elk moment uitschakelen in de Instellingen van de app of in de iOS-instellingen.</p>
+
+        <h2>Bijbeltekst</h2>
+        <p>Bijbelcitaten die in de app worden getoond, komen uit vrij van rechten (public domain) Bijbelvertalingen, gekozen om licentiebeperkingen op tekst binnen de app te vermijden. Engels gebruikt de <strong>World English Bible (WEB)</strong>; Portugees gebruikt de vertaling van <strong>João Ferreira de Almeida</strong> (herziening 1911/1914); Spaans gebruikt de <strong>Reina-Valera</strong>-vertaling (1909); Duits gebruikt de <strong>Lutherbijbel</strong> (1545); Frans gebruikt de <strong>Bijbel van Martin</strong> (1744); Italiaans gebruikt de <strong>Riveduta-bijbel</strong> (1927); Chinees (vereenvoudigd en traditioneel) gebruikt de <strong>Union Version</strong> (和合本); Russisch gebruikt de <strong>Synodale Vertaling</strong> (1876); Japans gebruikt de <strong>Meiji/Taishō-vertaling</strong> (文語訳); Koreaans gebruikt de <strong>Korean Revised Version</strong> (개역한글); Nederlands gebruikt de <strong>Statenvertaling</strong> (1637); Zweeds gebruikt de <strong>Kerkbijbel van 1917</strong>; Noors (Bokmål) gebruikt de <strong>Bibelselskapet</strong>-vertaling; Deens gebruikt de <strong>Deense Bijbel van 1871</strong>; Hongaars gebruikt de <strong>Károli-bijbel</strong> (1590); Tsjechisch gebruikt de <strong>Bijbel van Kralice</strong> (1613); Roemeens gebruikt de <strong>Cornilescu</strong>-vertaling — allemaal eveneens public domain. Naarmate Until He Comes ondersteuning voor meer talen toevoegt, zal elke taal om dezelfde reden zijn eigen public-domain vertaling gebruiken.</p>
+
+        <h2>Privacy van Kinderen</h2>
+        <p>Omdat Until He Comes van niemand persoonsgegevens verzamelt, ongeacht leeftijd, verzamelt de app ook niet bewust informatie van kinderen.</p>
+
+        <h2>Wijzigingen in Dit Beleid</h2>
+        <p>Als dit beleid ooit verandert — bijvoorbeeld als een toekomstige versie van de app een functie toevoegt die wél een internetverbinding vereist — wordt deze pagina bijgewerkt en verandert de datum "Van kracht" hierboven dienovereenkomstig.</p>
+
+        <h2>Neem Contact Met Ons Op</h2>
+        <p>Vragen over dit beleid kunnen worden gestuurd naar gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="sv" hidden>
+        <h1>Integritetspolicy</h1>
+        <div class="meta">Gäller från 28 september 2026 · Gäller för iOS-appen Until He Comes</div>
+
+        <h2>Översikt</h2>
+        <p>Until He Comes är en nativ iOS-app som visar en kontinuerligt föränderlig, icke-kronologisk vy av tiden tillsammans med ett kort kristet budskap om att vaka och vara redo för Kristi återkomst. Kort sagt: Until He Comes samlar inte in, lagrar inte och överför inte några personuppgifter. Appen har ingen server, inga konton och ingen internetanslutning alls — allt den visar och sparar stannar på din enhet. Resten av denna sida förklarar det tydligt, avsnitt för avsnitt.</p>
+
+        <h2>Information Vi Inte Samlar In</h2>
+        <p>Until He Comes ansluter inte till internet vid normal användning. Appen har inga användarkonton, ingen inloggning, ingen analys, ingen reklam, ingen kraschrapportering och ingen inbäddad spårningsprogramvara från tredje part. Vi — utvecklaren — får aldrig någon information om dig eller din enhet, eftersom ingenting någonsin skickas någonstans.</p>
+
+        <h2>Information Som Lagras På Din Enhet</h2>
+        <p>Appen lagrar en liten mängd information, men endast lokalt, på din egen enhet, med hjälp av iOS standardlagring:</p>
+        <ul>
+          <li><strong>Inställningar</strong> — dina val för Animationsintensitet, Haptisk feedback och Språk, sparade via iOS standard <code>UserDefaults</code>.</li>
+          <li><strong>Reflektioner</strong> — om du väljer att skriva en privat reflektion eller bönenotis sparas den som en lokal fil i appens eget lagringsområde på din enhet. Den laddas aldrig upp, synkroniseras eller delas, och endast du kan läsa den, inifrån appen.</li>
+        </ul>
+        <p>Inget av detta lämnar din enhet. Om du raderar appen raderas denna data med den. Vi har inget sätt att se, säkerhetskopiera eller återställa den, eftersom vi aldrig haft en kopia.</p>
+
+        <h2>Foton &amp; Hemskärmswidgeten</h2>
+        <p>Bakgrundsfotona du ser i appen och dess widget är inbyggda i appen själv — appen har inte åtkomst till ditt enhets fotobibliotek, kamera eller några personliga foton.</p>
+
+        <h2>Mikrofon &amp; Taligenkänning</h2>
+        <p>Om du väljer att tala in en reflektion i stället för att skriva den använder Until He Comes enhetens mikrofon bara medan du spelar in, och först efter att du har gett tillåtelse. Ditt tal omvandlas till text helt på din enhet, med Apples taligenkänning på enheten — ljudet sparas aldrig, skickas aldrig till Apple eller till oss och lämnar aldrig din enhet. Bara den resulterande texten behålls, som en del av din reflektion, lokalt sparad som alla andra. Om din enhet inte kan transkribera ditt språk på enheten visas mikrofonalternativet helt enkelt inte.</p>
+
+        <h2>Notiser</h2>
+        <p>Om du slår på notiser schemalägger appen enstaka påminnelser på din enhet med iOS lokala notiser. De skapas och levereras helt på din enhet — ingen pushtjänst, ingen server och ingen information som skickas någonstans. Du kan när som helst stänga av dem i appens inställningar eller i iOS-inställningarna.</p>
+
+        <h2>Bibeltext</h2>
+        <p>Bibelcitaten som visas i appen är hämtade från bibelöversättningar i det fria (public domain), utvalda för att undvika licensbegränsningar på text som medföljer appen. Engelska använder <strong>World English Bible (WEB)</strong>; portugisiska använder <strong>João Ferreira de Almeidas</strong> översättning (revision 1911/1914); spanska använder <strong>Reina-Valera</strong>-översättningen (1909); tyska använder <strong>Luthers bibel</strong> (1545); franska använder <strong>Martins bibel</strong> (1744); italienska använder <strong>Riveduta-bibeln</strong> (1927); kinesiska (förenklad och traditionell) använder <strong>Union Version</strong> (和合本); ryska använder <strong>Synodalöversättningen</strong> (1876); japanska använder <strong>Meiji/Taishō-översättningen</strong> (文語訳); koreanska använder <strong>Korean Revised Version</strong> (개역한글); nederländska använder <strong>Statenvertaling</strong> (1637) — alla likaså i det fria. När Until He Comes lägger till stöd för fler språk kommer varje språk av samma anledning att använda sin egen översättning i det fria.</p>
+
+        <h2>Barns Integritet</h2>
+        <p>Eftersom Until He Comes inte samlar in några personuppgifter från någon, oavsett ålder, samlar appen inte heller medvetet in information från barn.</p>
+
+        <h2>Ändringar Av Denna Policy</h2>
+        <p>Om denna policy någonsin ändras — till exempel om en framtida version av appen lägger till en funktion som involverar en internetanslutning — kommer denna sida att uppdateras och datumet "Gäller från" ovan att ändras i enlighet därmed.</p>
+
+        <h2>Kontakta Oss</h2>
+        <p>Frågor om denna policy kan skickas till gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="nb" hidden>
+        <h1>Personvernerklæring</h1>
+        <div class="meta">Gjelder fra 28. september 2026 · Gjelder for Until He Comes iOS-appen</div>
+
+        <h2>Oversikt</h2>
+        <p>Until He Comes er en nativ iOS-app som viser en kontinuerlig skiftende, ikke-kronologisk fremstilling av tid sammen med et kort kristent budskap om å våke og være klar for Kristi gjenkomst. Kort sagt: Until He Comes samler ikke inn, lagrer ikke og overfører ikke noen personopplysninger. Appen har ingen server, ingen kontoer og ingen internettforbindelse i det hele tatt — alt den viser og lagrer forblir på enheten din. Resten av denne siden forklarer dette tydelig, seksjon for seksjon.</p>
+
+        <h2>Informasjon Vi Ikke Samler Inn</h2>
+        <p>Until He Comes kobler seg ikke til internett ved normal bruk. Appen har ingen brukerkontoer, innlogging, analyse, reklame, krasjrapportering eller noen innebygd tredjeparts sporingsprogramvare. Vi — utvikleren — mottar aldri noen informasjon om deg eller enheten din, fordi ingenting noensinne sendes noe sted.</p>
+
+        <h2>Informasjon Lagret På Enheten Din</h2>
+        <p>Appen lagrer en liten mengde informasjon, men bare lokalt, på din egen enhet, ved hjelp av iOS' standardlagring:</p>
+        <ul>
+          <li><strong>Preferanser</strong> — dine innstillinger for Animasjonsintensitet, Haptisk tilbakemelding og Språk, lagret via iOS' standard <code>UserDefaults</code>.</li>
+          <li><strong>Refleksjoner</strong> — hvis du velger å skrive en privat refleksjon eller bønnenotis, lagres den som en lokal fil i appens eget lagringsområde på enheten din. Den lastes aldri opp, synkroniseres eller deles, og bare du kan lese den, inne i appen.</li>
+        </ul>
+        <p>Ingenting av dette forlater enheten din. Å slette appen sletter denne dataen med den. Vi har ingen måte å se, sikkerhetskopiere eller gjenopprette den på, fordi vi aldri har hatt en kopi.</p>
+
+        <h2>Bilder Og Hjemmeskjerm-Widgeten</h2>
+        <p>Bakgrunnsbildene du ser i appen og widgeten er innebygd i selve appen — appen får ikke tilgang til enhetens bildebibliotek, kamera eller noen personlige bilder.</p>
+
+        <h2>Mikrofon Og Talegjenkjenning</h2>
+        <p>Hvis du velger å snakke inn en refleksjon i stedet for å skrive den, bruker Until He Comes enhetens mikrofon bare mens du tar opp, og først etter at du har gitt tillatelse. Talen din gjøres om til tekst helt på enheten din, med Apples talegjenkjenning på enheten — lyden lagres aldri, sendes aldri til Apple eller til oss, og forlater aldri enheten din. Bare den ferdige teksten beholdes, som en del av refleksjonen din, lagret lokalt som alle andre. Hvis enheten din ikke kan transkribere språket ditt på enheten, vises mikrofonvalget rett og slett ikke.</p>
+
+        <h2>Varsler</h2>
+        <p>Hvis du slår på varsler, planlegger appen sporadiske påminnelser på enheten din ved hjelp av lokale varsler i iOS. De opprettes og leveres helt på enheten din — ingen push-tjeneste, ingen server og ingen informasjon som sendes noe sted. Du kan slå dem av når som helst i appens innstillinger eller i iOS-innstillingene.</p>
+
+        <h2>Bibeltekst</h2>
+        <p>Bibelsitater som vises i appen er hentet fra bibeloversettelser i det fri (public domain), valgt for å unngå lisensbegrensninger på tekst som følger med appen. Engelsk bruker <strong>World English Bible (WEB)</strong>; portugisisk bruker <strong>João Ferreira de Almeidas</strong> oversettelse (revisjon 1911/1914); spansk bruker <strong>Reina-Valera</strong>-oversettelsen (1909); tysk bruker <strong>Luthers bibel</strong> (1545); fransk bruker <strong>Martins bibel</strong> (1744); italiensk bruker <strong>Riveduta-bibelen</strong> (1927); kinesisk (forenklet og tradisjonell) bruker <strong>Union Version</strong> (和合本); russisk bruker <strong>Synodaloversettelsen</strong> (1876); japansk bruker <strong>Meiji/Taishō-oversettelsen</strong> (文語訳); koreansk bruker <strong>Korean Revised Version</strong> (개역한글); nederlandsk bruker <strong>Statenvertaling</strong> (1637) — alle også i det fri. Etter hvert som Until He Comes legger til støtte for flere språk, vil hvert språk av samme grunn bruke sin egen oversettelse i det fri.</p>
+
+        <h2>Barns Personvern</h2>
+        <p>Siden Until He Comes ikke samler inn noen personopplysninger fra noen, uavhengig av alder, samler appen heller ikke bevisst inn informasjon fra barn.</p>
+
+        <h2>Endringer I Denne Erklæringen</h2>
+        <p>Hvis denne erklæringen noen gang endres — for eksempel hvis en fremtidig versjon av appen legger til en funksjon som involverer en internettforbindelse — vil denne siden bli oppdatert, og datoen "Gjelder fra" ovenfor vil endres tilsvarende.</p>
+
+        <h2>Kontakt Oss</h2>
+        <p>Spørsmål om denne erklæringen kan sendes til gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="da" hidden>
+        <h1>Privatlivspolitik</h1>
+        <div class="meta">Gælder fra 28. september 2026 · Gælder for Until He Comes iOS-appen</div>
+
+        <h2>Oversigt</h2>
+        <p>Until He Comes er en native iOS-app, der viser en kontinuerligt skiftende, ikke-kronologisk visning af tid sammen med en kort kristen besked om at våge og være klar til Kristi genkomst. Kort sagt: Until He Comes indsamler, gemmer eller overfører ikke nogen personoplysninger. Appen har ingen server, ingen konti og slet ingen internetforbindelse — alt hvad den viser og gemmer, forbliver på din enhed. Resten af denne side forklarer dette tydeligt, afsnit for afsnit.</p>
+
+        <h2>Information Vi Ikke Indsamler</h2>
+        <p>Until He Comes opretter ikke forbindelse til internettet ved normal brug. Appen har ingen brugerkonti, login, analyse, reklamer, fejlrapportering eller nogen indbygget tredjeparts sporingssoftware. Vi — udvikleren — modtager aldrig nogen information om dig eller din enhed, fordi intet nogensinde sendes nogen steder.</p>
+
+        <h2>Information Gemt På Din Enhed</h2>
+        <p>Appen gemmer en lille mængde information, men kun lokalt, på din egen enhed, ved hjælp af iOS' standardlagring:</p>
+        <ul>
+          <li><strong>Præferencer</strong> — dine indstillinger for Animationsintensitet, Haptisk feedback og Sprog, gemt via iOS' standard <code>UserDefaults</code>.</li>
+          <li><strong>Refleksioner</strong> — hvis du vælger at skrive en privat refleksion eller bønnenotat, gemmes den som en lokal fil i appens eget lagringsområde på din enhed. Den bliver aldrig uploadet, synkroniseret eller delt, og kun du kan læse den, inde i appen.</li>
+        </ul>
+        <p>Intet af dette forlader din enhed. At slette appen sletter denne data med den. Vi har ingen måde at se, sikkerhedskopiere eller gendanne det på, fordi vi aldrig har haft en kopi.</p>
+
+        <h2>Billeder &amp; Hjemmeskærmswidgeten</h2>
+        <p>Baggrundsbillederne, du ser i appen og dens widget, er indbygget i selve appen — appen har ikke adgang til din enheds billedbibliotek, kamera eller nogen personlige billeder.</p>
+
+        <h2>Mikrofon Og Talegenkendelse</h2>
+        <p>Hvis du vælger at indtale en refleksion i stedet for at skrive den, bruger Until He Comes din enheds mikrofon kun, mens du optager, og først efter at du har givet tilladelse. Din tale omdannes til tekst helt på din enhed med Apples talegenkendelse på enheden — lyden gemmes aldrig, sendes aldrig til Apple eller til os og forlader aldrig din enhed. Kun den færdige tekst bevares, som en del af din refleksion, gemt lokalt som alle andre. Hvis din enhed ikke kan transskribere dit sprog på enheden, vises mikrofonmuligheden simpelthen ikke.</p>
+
+        <h2>Notifikationer</h2>
+        <p>Hvis du slår notifikationer til, planlægger appen lejlighedsvise påmindelser på din enhed ved hjælp af iOS' lokale notifikationer. De oprettes og leveres helt på din enhed — ingen push-tjeneste, ingen server og ingen information, der sendes nogen steder hen. Du kan til enhver tid slå dem fra i appens indstillinger eller i iOS-indstillingerne.</p>
+
+        <h2>Bibeltekst</h2>
+        <p>Bibelcitater, der vises i appen, er hentet fra bibeloversættelser i det fri (public domain), valgt for at undgå licensbegrænsninger på tekst, der følger med appen. Engelsk bruger <strong>World English Bible (WEB)</strong>; portugisisk bruger <strong>João Ferreira de Almeidas</strong> oversættelse (revision 1911/1914); spansk bruger <strong>Reina-Valera</strong>-oversættelsen (1909); tysk bruger <strong>Luthers bibel</strong> (1545); fransk bruger <strong>Martins bibel</strong> (1744); italiensk bruger <strong>Riveduta-bibelen</strong> (1927); kinesisk (forenklet og traditionel) bruger <strong>Union Version</strong> (和合本); russisk bruger <strong>Synodaloversættelsen</strong> (1876); japansk bruger <strong>Meiji/Taishō-oversættelsen</strong> (文語訳); koreansk bruger <strong>Korean Revised Version</strong> (개역한글); nederlandsk bruger <strong>Statenvertaling</strong> (1637) — alle også i det fri. Efterhånden som Until He Comes tilføjer understøttelse af flere sprog, vil hvert sprog af samme grund bruge sin egen oversættelse i det fri.</p>
+
+        <h2>Børns Privatliv</h2>
+        <p>Da Until He Comes ikke indsamler nogen personoplysninger fra nogen, uanset alder, indsamler appen heller ikke bevidst information fra børn.</p>
+
+        <h2>Ændringer Til Denne Politik</h2>
+        <p>Hvis denne politik nogensinde ændres — for eksempel hvis en fremtidig version af appen tilføjer en funktion, der involverer en internetforbindelse — vil denne side blive opdateret, og datoen "Gælder fra" ovenfor vil ændres i overensstemmelse hermed.</p>
+
+        <h2>Kontakt Os</h2>
+        <p>Spørgsmål om denne politik kan sendes til gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="hu" hidden>
+        <h1>Adatvédelmi Szabályzat</h1>
+        <div class="meta">2026. szeptember 28-tól hatályos · Az Until He Comes iOS alkalmazásra vonatkozik</div>
+
+        <h2>Áttekintés</h2>
+        <p>Az Until He Comes egy natív iOS alkalmazás, amely folyamatosan változó, nem időrendi időábrázolást jelenít meg egy rövid keresztény üzenettel együtt az éberségről és a Krisztus visszatérésére való készenlétről. Röviden: az Until He Comes nem gyűjt, tárol vagy továbbít semmilyen személyes adatot. Nincs háttérszervere, nincsenek fiókjai, és egyáltalán nincs hálózati kapcsolata — minden, amit megjelenít és ment, az eszközödön marad. Az oldal hátralévő része szakaszonként világosan elmagyarázza ezt.</p>
+
+        <h2>Az Információ, Amit Nem Gyűjtünk</h2>
+        <p>Az Until He Comes normál használat során nem csatlakozik az internethez. Nincsenek felhasználói fiókjai, bejelentkezése, elemzései, hirdetései, összeomlás-jelentései, vagy beágyazott harmadik féltől származó nyomkövető szoftvere. Mi — a fejlesztő — soha nem kapunk semmilyen információt rólad vagy az eszközödről, mert semmi nem kerül soha sehova elküldésre.</p>
+
+        <h2>Az Eszközödön Tárolt Információ</h2>
+        <p>Az alkalmazás valóban tárol egy kis mennyiségű információt, de csak helyben, a saját eszközödön, az iOS szabványos tárolását használva:</p>
+        <ul>
+          <li><strong>Beállítások</strong> — az Animáció Intenzitására, a Rezgésre és a Nyelvre vonatkozó beállításaid, az iOS szabványos <code>UserDefaults</code> rendszerén keresztül mentve.</li>
+          <li><strong>Elmélkedések</strong> — ha úgy döntesz, hogy privát elmélkedést vagy imajegyzetet írsz, az helyi fájlként kerül mentésre az alkalmazás saját tárolási területén, az eszközödön. Soha nem kerül feltöltésre, szinkronizálásra vagy megosztásra, és csak te olvashatod, az alkalmazáson belül.</li>
+        </ul>
+        <p>Ebből semmi sem hagyja el az eszközödet. Az alkalmazás törlése ezt az adatot is törli vele együtt. Nincs módunk megtekinteni, biztonsági másolatot készíteni vagy visszaállítani, mert soha nem volt másolatunk róla.</p>
+
+        <h2>Fényképek És A Kezdőképernyő-Widget</h2>
+        <p>Az alkalmazásban és annak widgetjében látott háttérképek magába az alkalmazásba vannak beépítve — az alkalmazás nem fér hozzá az eszközöd fényképtárához, kamerájához vagy bármely személyes fényképéhez.</p>
+
+        <h2>Mikrofon És Beszédfelismerés</h2>
+        <p>Ha úgy döntesz, hogy gépelés helyett bemondod az elmélkedésedet, az Until He Comes csak a felvétel ideje alatt használja az eszközöd mikrofonját, és csak azután, hogy engedélyt adtál rá. A beszéded teljes egészében az eszközödön alakul át szöveggé, az Apple eszközön futó beszédfelismerésével — a hangfelvételt soha nem menti, soha nem küldi el az Apple-nek vagy nekünk, és soha nem hagyja el az eszközödet. Csak a létrejött szöveg marad meg, az elmélkedésed részeként, helyben tárolva, mint bármely más. Ha az eszközöd nem tudja helyben átírni a nyelvedet, a mikrofon lehetőség egyszerűen nem jelenik meg.</p>
+
+        <h2>Értesítések</h2>
+        <p>Ha bekapcsolod az értesítéseket, az alkalmazás alkalmanként emlékeztetőket ütemez az eszközödön az iOS helyi értesítéseivel. Ezek teljes egészében az eszközödön jönnek létre és ott is jelennek meg — nincs push-szolgáltatás, nincs szerver, és semmilyen információ nem kerül el sehová. Bármikor kikapcsolhatod őket az alkalmazás Beállításaiban vagy az iOS Beállításaiban.</p>
+
+        <h2>Szentírási Szöveg</h2>
+        <p>Az alkalmazásban megjelenő bibliai idézetek közkincs bibliafordításokból származnak, amelyeket azért választottunk, hogy elkerüljük az alkalmazásban szereplő szöveg licencelési korlátozásait. Az angol a <strong>World English Bible</strong>-t (WEB) használja; a portugál <strong>João Ferreira de Almeida</strong> fordítását (1911/1914-es revízió); a spanyol a <strong>Reina-Valera</strong> fordítást (1909); a német <strong>Luther Bibliáját</strong> (1545); a francia a <strong>Martin Bibliát</strong> (1744); az olasz a <strong>Riveduta Bibliát</strong> (1927); a kínai (egyszerűsített és hagyományos) a <strong>Union Version</strong>-t (和合本); az orosz a <strong>Zsinati fordítást</strong> (1876); a japán a <strong>Meidzsi/Taisó fordítást</strong> (文語訳); a koreai a <strong>Korean Revised Version</strong>-t (개역한글); a holland a <strong>Statenvertaling</strong>-ot (1637) használja — mindegyik szintén közkincs. Ahogy az Until He Comes további nyelvek támogatását adja hozzá, mindegyik ugyanezen okból a saját közkincs fordítását fogja használni.</p>
+
+        <h2>Gyermekek Adatvédelme</h2>
+        <p>Mivel az Until He Comes senkitől sem gyűjt személyes adatot, életkortól függetlenül, gyermekektől sem gyűjt tudatosan információt.</p>
+
+        <h2>A Szabályzat Változásai</h2>
+        <p>Ha ez a szabályzat valaha megváltozik — például ha az alkalmazás egy jövőbeli verziója hálózati kapcsolatot igénylő funkciót ad hozzá —, ez az oldal frissül, és a fenti "Hatályos" dátum ennek megfelelően megváltozik.</p>
+
+        <h2>Lépj Kapcsolatba Velünk</h2>
+        <p>A szabályzattal kapcsolatos kérdéseket a gustavoalvesalvesgustavo@gmail.com címre küldheted.</p>
+      </div>
+
+      <div class="lang" data-lang="cs" hidden>
+        <h1>Zásady Ochrany Osobních Údajů</h1>
+        <div class="meta">Platné od 28. září 2026 · Vztahuje se na aplikaci Until He Comes pro iOS</div>
+
+        <h2>Přehled</h2>
+        <p>Until He Comes je nativní aplikace pro iOS, která zobrazuje neustále se měnící, nechronologický pohled na čas spolu s krátkým křesťanským poselstvím o bdělosti a připravenosti na Kristův druhý příchod. Stručně řečeno: Until He Comes neshromažďuje, neukládá ani nepřenáší žádné osobní údaje. Nemá žádný server, žádné účty a vůbec žádné síťové připojení — vše, co zobrazuje a ukládá, zůstává ve vašem zařízení. Zbytek této stránky to jasně vysvětluje, oddíl po oddílu.</p>
+
+        <h2>Informace, Které Neshromažďujeme</h2>
+        <p>Until He Comes se při běžném používání nepřipojuje k internetu. Nemá žádné uživatelské účty, přihlašování, analytiku, reklamy, hlášení pádů ani žádný vestavěný sledovací software třetích stran. My — vývojář — nikdy nedostáváme žádné informace o vás nebo vašem zařízení, protože nic se nikdy nikam neodesílá.</p>
+
+        <h2>Informace Uložené Ve Vašem Zařízení</h2>
+        <p>Aplikace skutečně ukládá malé množství informací, ale pouze lokálně, ve vašem vlastním zařízení, pomocí standardního úložiště iOS:</p>
+        <ul>
+          <li><strong>Předvolby</strong> — vaše nastavení Intenzity animace, Haptické odezvy a Jazyka, uložené prostřednictvím standardního <code>UserDefaults</code> systému iOS.</li>
+          <li><strong>Zamyšlení</strong> — pokud se rozhodnete napsat soukromé zamyšlení nebo modlitební poznámku, uloží se jako místní soubor ve vlastní úložné oblasti aplikace ve vašem zařízení. Nikdy se nenahrává, nesynchronizuje ani nesdílí, a přečíst si ho můžete pouze vy, uvnitř aplikace.</li>
+        </ul>
+        <p>Nic z toho neopouští vaše zařízení. Smazáním aplikace se tato data smažou spolu s ní. Nemáme způsob, jak je vidět, zálohovat nebo obnovit, protože jsme nikdy neměli jejich kopii.</p>
+
+        <h2>Fotografie A Widget Na Ploše</h2>
+        <p>Fotografie na pozadí, které vidíte v aplikaci a jejím widgetu, jsou součástí samotné aplikace — aplikace nemá přístup k fotoknihovně vašeho zařízení, fotoaparátu ani žádným osobním fotografiím.</p>
+
+        <h2>Mikrofon A Rozpoznávání Řeči</h2>
+        <p>Pokud se rozhodnete úvahu nadiktovat místo psaní, Until He Comes používá mikrofon vašeho zařízení pouze během nahrávání a teprve poté, co k tomu udělíte povolení. Vaše řeč se převádí na text výhradně ve vašem zařízení pomocí rozpoznávání řeči Apple přímo v zařízení — zvuk se nikdy neukládá, nikdy se neodesílá společnosti Apple ani nám a nikdy neopustí vaše zařízení. Uchová se pouze výsledný text jako součást vaší úvahy, uložený místně jako kterákoli jiná. Pokud vaše zařízení nedokáže váš jazyk přepisovat přímo v zařízení, možnost mikrofonu se jednoduše nezobrazí.</p>
+
+        <h2>Oznámení</h2>
+        <p>Pokud zapnete oznámení, aplikace naplánuje ve vašem zařízení občasné připomínky pomocí místních oznámení iOS. Vytvářejí se a doručují výhradně ve vašem zařízení — žádná push služba, žádný server a žádné informace odesílané kamkoli. Kdykoli je můžete vypnout v Nastavení aplikace nebo v Nastavení iOS.</p>
+
+        <h2>Biblický Text</h2>
+        <p>Biblické citace zobrazené v aplikaci pocházejí z biblických překladů ve veřejné doméně, vybraných tak, aby se předešlo licenčním omezením textu obsaženého v aplikaci. Angličtina používá <strong>World English Bible</strong> (WEB); portugalština používá překlad <strong>Joãa Ferreiry de Almeidy</strong> (revize 1911/1914); španělština používá překlad <strong>Reina-Valera</strong> (1909); němčina používá <strong>Lutherovu bibli</strong> (1545); francouzština používá <strong>Martinovu bibli</strong> (1744); italština používá bibli <strong>Riveduta</strong> (1927); čínština (zjednodušená i tradiční) používá <strong>Union Version</strong> (和合本); ruština používá <strong>Synodální překlad</strong> (1876); japonština používá překlad <strong>Meiji/Taishō</strong> (文語訳); korejština používá <strong>Korean Revised Version</strong> (개역한글); nizozemština používá <strong>Statenvertaling</strong> (1637) — všechny rovněž ve veřejné doméně. Jak Until He Comes přidává podporu dalších jazyků, každý bude ze stejného důvodu používat svůj vlastní překlad ve veřejné doméně.</p>
+
+        <h2>Ochrana Soukromí Dětí</h2>
+        <p>Jelikož Until He Comes neshromažďuje osobní údaje od nikoho, bez ohledu na věk, nesbírá vědomě informace ani od dětí.</p>
+
+        <h2>Změny Těchto Zásad</h2>
+        <p>Pokud se tyto zásady někdy změní — například pokud budoucí verze aplikace přidá funkci zahrnující síťové připojení — tato stránka bude aktualizována a výše uvedené datum "Platné od" se odpovídajícím způsobem změní.</p>
+
+        <h2>Kontaktujte Nás</h2>
+        <p>Dotazy ohledně těchto zásad lze zasílat na gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="ro" hidden>
+        <h1>Politica de Confidențialitate</h1>
+        <div class="meta">În vigoare de la 28 septembrie 2026 · Se aplică aplicației iOS Until He Comes</div>
+
+        <h2>Prezentare Generală</h2>
+        <p>Until He Comes este o aplicație iOS nativă care afișează o perspectivă asupra timpului în continuă schimbare, non-cronologică, însoțită de un scurt mesaj creștin despre veghere și pregătire pentru revenirea lui Hristos. Pe scurt: Until He Comes nu colectează, nu stochează și nu transmite date personale. Nu are server, nu are conturi și nu are nicio conexiune la internet — tot ce afișează și salvează rămâne pe dispozitivul tău. Restul acestei pagini explică acest lucru clar, secțiune cu secțiune.</p>
+
+        <h2>Informații Pe Care Nu Le Colectăm</h2>
+        <p>Until He Comes nu se conectează la internet în uz normal. Nu are conturi de utilizator, autentificare, analiză, publicitate, raportare a erorilor sau vreun software de urmărire terță parte încorporat. Noi — dezvoltatorul — nu primim niciodată nicio informație despre tine sau despre dispozitivul tău, deoarece nimic nu este trimis niciodată nicăieri.</p>
+
+        <h2>Informații Stocate Pe Dispozitivul Tău</h2>
+        <p>Aplicația stochează într-adevăr o cantitate mică de informații, dar doar local, pe propriul tău dispozitiv, folosind stocarea standard iOS:</p>
+        <ul>
+          <li><strong>Preferințe</strong> — setările tale pentru Intensitatea Animației, Feedback Haptic și Limbă, salvate prin <code>UserDefaults</code> standard iOS.</li>
+          <li><strong>Reflecții</strong> — dacă alegi să scrii o reflecție privată sau o notă de rugăciune, aceasta este salvată ca fișier local în zona proprie de stocare a aplicației de pe dispozitivul tău. Nu este niciodată încărcată, sincronizată sau partajată, și doar tu o poți citi, din interiorul aplicației.</li>
+        </ul>
+        <p>Nimic din toate acestea nu părăsește dispozitivul tău. Ștergerea aplicației șterge și aceste date odată cu ea. Nu avem nicio modalitate de a le vedea, salva sau recupera, deoarece nu am avut niciodată o copie.</p>
+
+        <h2>Fotografii Și Widget-ul De Pe Ecranul Principal</h2>
+        <p>Fotografiile de fundal pe care le vezi în aplicație și în widget-ul acesteia sunt incluse chiar în aplicație — aplicația nu accesează biblioteca de fotografii, camera sau orice fotografii personale de pe dispozitivul tău.</p>
+
+        <h2>Microfon Și Recunoaștere Vocală</h2>
+        <p>Dacă alegi să dictezi o reflecție în loc să o scrii, Until He Comes folosește microfonul dispozitivului tău doar cât timp înregistrezi și numai după ce ți-ai dat permisiunea. Vocea ta este transformată în text în întregime pe dispozitivul tău, prin recunoașterea vocală Apple de pe dispozitiv — sunetul nu este niciodată salvat, nu este niciodată trimis către Apple sau către noi și nu părăsește niciodată dispozitivul tău. Se păstrează doar textul rezultat, ca parte a reflecției tale, stocat local ca oricare alta. Dacă dispozitivul tău nu poate transcrie limba ta local, opțiunea de microfon pur și simplu nu apare.</p>
+
+        <h2>Notificări</h2>
+        <p>Dacă activezi notificările, aplicația programează din când în când mementouri pe dispozitivul tău folosind notificările locale din iOS. Acestea sunt create și livrate în întregime pe dispozitivul tău — fără serviciu push, fără server și fără nicio informație trimisă nicăieri. Le poți dezactiva oricând din Setările aplicației sau din Setările iOS.</p>
+
+        <h2>Text Biblic</h2>
+        <p>Citatele biblice afișate în aplicație provin din traduceri ale Bibliei aflate în domeniul public, alese pentru a evita restricțiile de licență asupra textului inclus în aplicație. Engleza folosește <strong>World English Bible</strong> (WEB); portugheza folosește traducerea lui <strong>João Ferreira de Almeida</strong> (revizuirea 1911/1914); spaniola folosește traducerea <strong>Reina-Valera</strong> (1909); germana folosește <strong>Biblia lui Luther</strong> (1545); franceza folosește <strong>Biblia Martin</strong> (1744); italiana folosește <strong>Biblia Riveduta</strong> (1927); chineza (simplificată și tradițională) folosește <strong>Union Version</strong> (和合本); rusa folosește <strong>Traducerea Sinodală</strong> (1876); japoneza folosește traducerea <strong>Meiji/Taishō</strong> (文語訳); coreeana folosește <strong>Korean Revised Version</strong> (개역한글); olandeza folosește <strong>Statenvertaling</strong> (1637) — toate, de asemenea, în domeniul public. Pe măsură ce Until He Comes adaugă suport pentru mai multe limbi, fiecare va folosi propria traducere din domeniul public, din același motiv.</p>
+
+        <h2>Confidențialitatea Copiilor</h2>
+        <p>Deoarece Until He Comes nu colectează date personale de la nimeni, indiferent de vârstă, aplicația nu colectează în mod intenționat informații nici de la copii.</p>
+
+        <h2>Modificări Ale Acestei Politici</h2>
+        <p>Dacă această politică se schimbă vreodată — de exemplu, dacă o versiune viitoare a aplicației adaugă o funcție care implică o conexiune la internet — această pagină va fi actualizată, iar data "În vigoare" de mai sus se va schimba în consecință.</p>
+
+        <h2>Contactează-ne</h2>
+        <p>Întrebările despre această politică pot fi trimise la gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+    </article>
+
+    <article id="terms" hidden>
+      <div class="lang" data-lang="en">
+        <h1>Terms of Use</h1>
+        <div class="meta">Effective September 16, 2026 · Applies to the Until He Comes iOS app</div>
+
+        <h2>Acceptance of Terms</h2>
+        <p>By downloading, installing, or using Until He Comes (the "App"), you agree to these Terms of Use. If you don't agree, please don't use the App.</p>
+
+        <h2>License to Use the App</h2>
+        <p>Subject to these Terms, you're granted a personal, non-exclusive, non-transferable, revocable license to use the App on Apple devices you own or control, for your own personal, non-commercial use, in accordance with Apple's App Store terms.</p>
+
+        <h2>Content &amp; Intellectual Property</h2>
+        <p>The App's design, code, curated message text, and visual presentation belong to Gustavo Alves. Scripture quotations are drawn from public-domain Bible translations — the World English Bible (English), the João Ferreira de Almeida translation (Portuguese), the Reina-Valera translation (Spanish), the Luther Bible (German), the Martin Bible (French), the Riveduta Bible (Italian), the Union Version (Chinese, 和合本), the Synodal Translation (Russian), the Meiji/Taishō Translation (Japanese), the Korean Revised Version (Korean), the Statenvertaling (Dutch), the 1917 Church Bible (Swedish), the Bibelselskapet translation (Norwegian), the 1871 Danish Bible, the Károli Bible (Hungarian), the Bible Kralická (Czech), and the Cornilescu translation (Romanian), each free of copyright restrictions worldwide. You may not copy, modify, reverse-engineer, redistribute, or create derivative works from the App itself beyond what applicable law expressly permits.</p>
+
+        <h2>The Nature of This App's Content</h2>
+        <p>Until He Comes presents a particular Christian perspective on watchfulness and readiness for Christ's return, centered on the idea that "no one knows the day or hour" (Matthew 24:36). It is an independent app, not affiliated with, endorsed by, or produced on behalf of any specific church or denomination, and it is not a substitute for pastoral guidance, theological study, or community worship.</p>
+
+        <h2>Acceptable Use</h2>
+        <p>You agree not to use the App in any way that violates applicable law, infringes on others' rights, or attempts to disrupt, decompile, or extract source code or assets from the App beyond what's needed for your own personal use of it as intended.</p>
+
+        <h2>No Warranty</h2>
+        <p>The App is provided "as is" and "as available," without warranties of any kind, express or implied. We don't guarantee the App will be uninterrupted, error-free, or available at all times.</p>
+
+        <h2>Limitation of Liability</h2>
+        <p>To the fullest extent permitted by law, Gustavo Alves won't be liable for any indirect, incidental, or consequential damages arising from your use of, or inability to use, the App.</p>
+
+        <h2>Changes to the App or These Terms</h2>
+        <p>We may update the App or these Terms from time to time. Continued use of the App after changes take effect means you accept the updated Terms.</p>
+
+        <h2>Termination</h2>
+        <p>You may stop using the App at any time by deleting it. We may suspend or discontinue the App, in whole or in part, at any time.</p>
+
+        <h2>Governing Law</h2>
+        <p>These Terms are governed by the laws of Portugal, without regard to its conflict-of-law principles.</p>
+
+        <h2>Contact Us</h2>
+        <p>Questions about these Terms can be sent to gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="pt" hidden>
+        <h1>Termos de Utilização</h1>
+        <div class="meta">Em vigor desde 16 de setembro de 2026 · Aplica-se à aplicação iOS Until He Comes</div>
+
+        <h2>Aceitação dos Termos</h2>
+        <p>Ao transferir, instalar ou utilizar o Until He Comes (a "Aplicação"), aceitas estes Termos de Utilização. Se não concordares, por favor não utilizes a Aplicação.</p>
+
+        <h2>Licença de Utilização da Aplicação</h2>
+        <p>Sujeito a estes Termos, é-te concedida uma licença pessoal, não exclusiva, intransmissível e revogável para utilizar a Aplicação em dispositivos Apple que possuas ou controles, para uso pessoal e não comercial, em conformidade com os termos da App Store da Apple.</p>
+
+        <h2>Conteúdo e Propriedade Intelectual</h2>
+        <p>O design, o código, o texto das mensagens curadas e a apresentação visual da Aplicação pertencem a Gustavo Alves. As citações bíblicas provêm de traduções da Bíblia em domínio público — a World English Bible (inglês), a tradução de João Ferreira de Almeida (português), a tradução Reina-Valera (espanhol), a Bíblia de Lutero (alemão), a Bíblia Martin (francês), a Bíblia Riveduta (italiano), a Union Version (chinês, 和合本), a Tradução Sinodal (russo), a tradução Meiji/Taishō (japonês), a Korean Revised Version (coreano), a Statenvertaling (neerlandês), a Bíblia da Igreja de 1917 (sueco), a tradução Bibelselskapet (norueguês), a Bíblia Dinamarquesa de 1871 (dinamarquês), a Bíblia Károli (húngaro), a Bíblia Kralická (checo) e a tradução Cornilescu (romeno) — todas livres de restrições de direitos de autor em todo o mundo. Não podes copiar, modificar, fazer engenharia inversa, redistribuir ou criar obras derivadas da própria Aplicação para além do que a lei aplicável permite expressamente.</p>
+
+        <h2>A Natureza do Conteúdo desta Aplicação</h2>
+        <p>O Until He Comes apresenta uma perspetiva cristã particular sobre a vigilância e a prontidão para o regresso de Cristo, centrada na ideia de que "ninguém sabe o dia nem a hora" (Mateus 24:36). É uma aplicação independente, não afiliada, endossada ou produzida em nome de qualquer igreja ou denominação específica, e não substitui o acompanhamento pastoral, o estudo teológico ou a vida em comunidade.</p>
+
+        <h2>Utilização Aceitável</h2>
+        <p>Concordas em não utilizar a Aplicação de forma que viole a lei aplicável, infrinja os direitos de terceiros, ou tente perturbar, descompilar ou extrair código-fonte ou recursos da Aplicação para além do necessário para o teu uso pessoal pretendido.</p>
+
+        <h2>Sem Garantia</h2>
+        <p>A Aplicação é fornecida "tal como está" e "conforme disponível", sem garantias de qualquer tipo, expressas ou implícitas. Não garantimos que a Aplicação será ininterrupta, isenta de erros ou estará disponível em todos os momentos.</p>
+
+        <h2>Limitação de Responsabilidade</h2>
+        <p>Na máxima medida permitida por lei, Gustavo Alves não será responsável por quaisquer danos indiretos, incidentais ou consequenciais decorrentes do uso, ou da impossibilidade de uso, da Aplicação.</p>
+
+        <h2>Alterações à Aplicação ou a Estes Termos</h2>
+        <p>Poderemos atualizar a Aplicação ou estes Termos periodicamente. A utilização continuada da Aplicação após a entrada em vigor das alterações significa que aceitas os Termos atualizados.</p>
+
+        <h2>Rescisão</h2>
+        <p>Podes deixar de utilizar a Aplicação a qualquer momento, apagando-a. Poderemos suspender ou descontinuar a Aplicação, no todo ou em parte, a qualquer momento.</p>
+
+        <h2>Lei Aplicável</h2>
+        <p>Estes Termos são regidos pelas leis de Portugal, sem consideração pelos seus princípios de conflito de leis.</p>
+
+        <h2>Contacta-nos</h2>
+        <p>Questões sobre estes Termos podem ser enviadas para gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="es" hidden>
+        <h1>Términos de Uso</h1>
+        <div class="meta">Vigente desde el 16 de septiembre de 2026 · Se aplica a la aplicación iOS Until He Comes</div>
+
+        <h2>Aceptación de los Términos</h2>
+        <p>Al descargar, instalar o utilizar Until He Comes (la "Aplicación"), aceptas estos Términos de Uso. Si no estás de acuerdo, por favor no utilices la Aplicación.</p>
+
+        <h2>Licencia de Uso de la Aplicación</h2>
+        <p>Sujeto a estos Términos, se te concede una licencia personal, no exclusiva, intransferible y revocable para utilizar la Aplicación en dispositivos Apple que poseas o controles, para tu uso personal y no comercial, de acuerdo con los términos de la App Store de Apple.</p>
+
+        <h2>Contenido y Propiedad Intelectual</h2>
+        <p>El diseño, el código, el texto de los mensajes seleccionados y la presentación visual de la Aplicación pertenecen a Gustavo Alves. Las citas bíblicas provienen de traducciones de la Biblia de dominio público — la World English Bible (inglés), la traducción de João Ferreira de Almeida (portugués), la traducción Reina-Valera (español), la Biblia de Lutero (alemán), la Biblia Martin (francés), la Biblia Riveduta (italiano), la Union Version (chino, 和合本), la Traducción Sinodal (ruso), la traducción Meiji/Taishō (japonés), la Korean Revised Version (coreano), la Statenvertaling (neerlandés), la Biblia de la Iglesia de 1917 (sueco), la traducción Bibelselskapet (noruego), la Biblia Danesa de 1871 (danés), la Biblia Károli (húngaro), la Biblia Kralická (checo) y la traducción Cornilescu (rumano) — todas ellas libres de restricciones de derechos de autor en todo el mundo. No puedes copiar, modificar, aplicar ingeniería inversa, redistribuir ni crear obras derivadas de la propia Aplicación más allá de lo que la ley aplicable permita expresamente.</p>
+
+        <h2>La Naturaleza del Contenido de esta Aplicación</h2>
+        <p>Until He Comes presenta una perspectiva cristiana particular sobre la vigilancia y la preparación para el regreso de Cristo, centrada en la idea de que "nadie sabe el día ni la hora" (Mateo 24:36). Es una aplicación independiente, no afiliada, avalada ni producida en nombre de ninguna iglesia o denominación específica, y no sustituye el acompañamiento pastoral, el estudio teológico ni la vida en comunidad.</p>
+
+        <h2>Uso Aceptable</h2>
+        <p>Aceptas no utilizar la Aplicación de ninguna manera que viole la ley aplicable, infrinja los derechos de terceros, o intente interrumpir, descompilar o extraer código fuente o recursos de la Aplicación más allá de lo necesario para tu propio uso personal previsto.</p>
+
+        <h2>Sin Garantía</h2>
+        <p>La Aplicación se proporciona "tal cual" y "según disponibilidad", sin garantías de ningún tipo, expresas o implícitas. No garantizamos que la Aplicación sea ininterrumpida, esté libre de errores o esté disponible en todo momento.</p>
+
+        <h2>Limitación de Responsabilidad</h2>
+        <p>En la medida máxima permitida por la ley, Gustavo Alves no será responsable de ningún daño indirecto, incidental o consecuente derivado del uso, o de la imposibilidad de uso, de la Aplicación.</p>
+
+        <h2>Cambios a la Aplicación o a Estos Términos</h2>
+        <p>Podemos actualizar la Aplicación o estos Términos periódicamente. El uso continuado de la Aplicación después de que los cambios entren en vigor significa que aceptas los Términos actualizados.</p>
+
+        <h2>Terminación</h2>
+        <p>Puedes dejar de utilizar la Aplicación en cualquier momento, eliminándola. Podemos suspender o discontinuar la Aplicación, en su totalidad o en parte, en cualquier momento.</p>
+
+        <h2>Ley Aplicable</h2>
+        <p>Estos Términos se rigen por las leyes de Portugal, sin consideración de sus principios de conflicto de leyes.</p>
+
+        <h2>Contáctanos</h2>
+        <p>Las preguntas sobre estos Términos pueden enviarse a gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="de" hidden>
+        <h1>Nutzungsbedingungen</h1>
+        <div class="meta">Gültig ab 16. September 2026 · Gilt für die iOS-App Until He Comes</div>
+
+        <h2>Annahme der Bedingungen</h2>
+        <p>Durch das Herunterladen, Installieren oder Nutzen von Until He Comes (die „App") stimmst du diesen Nutzungsbedingungen zu. Wenn du nicht einverstanden bist, nutze die App bitte nicht.</p>
+
+        <h2>Lizenz zur Nutzung der App</h2>
+        <p>Vorbehaltlich dieser Bedingungen wird dir eine persönliche, nicht-exklusive, nicht übertragbare, widerrufliche Lizenz zur Nutzung der App auf Apple-Geräten gewährt, die du besitzt oder kontrollierst, für deinen persönlichen, nicht-kommerziellen Gebrauch, in Übereinstimmung mit den App-Store-Bedingungen von Apple.</p>
+
+        <h2>Inhalt &amp; geistiges Eigentum</h2>
+        <p>Das Design, der Code, die kuratierten Nachrichtentexte und die visuelle Darstellung der App gehören Gustavo Alves. Bibelzitate stammen aus gemeinfreien Bibelübersetzungen — der World English Bible (Englisch), der Übersetzung von João Ferreira de Almeida (Portugiesisch), der Reina-Valera-Übersetzung (Spanisch), der Lutherbibel (Deutsch), der Martin-Bibel (Französisch), der Riveduta-Bibel (Italienisch), der Union Version (Chinesisch, 和合本), der Synodalübersetzung (Russisch), der Meiji/Taishō-Übersetzung (Japanisch), der Korean Revised Version (Koreanisch), der Statenvertaling (Niederländisch), der Kirchenbibel von 1917 (Schwedisch), der Bibelselskapet-Übersetzung (Norwegisch), der dänischen Bibel von 1871 (Dänisch), der Károli-Bibel (Ungarisch), der Bibel Kralická (Tschechisch) und der Cornilescu-Übersetzung (Rumänisch) — alle weltweit frei von urheberrechtlichen Einschränkungen. Du darfst die App selbst nicht kopieren, verändern, zurückentwickeln, weiterverbreiten oder davon abgeleitete Werke erstellen, außer soweit das geltende Recht dies ausdrücklich erlaubt.</p>
+
+        <h2>Die Art des Inhalts dieser App</h2>
+        <p>Until He Comes stellt eine bestimmte christliche Perspektive zu Wachsamkeit und Bereitschaft für die Wiederkunft Christi dar, zentriert auf den Gedanken, dass „niemand den Tag oder die Stunde kennt" (Matthäus 24:36). Es handelt sich um eine unabhängige App, die mit keiner bestimmten Kirche oder Konfession verbunden ist, nicht von ihr unterstützt oder in ihrem Auftrag erstellt wurde, und sie ersetzt keine seelsorgerliche Begleitung, kein theologisches Studium und kein Gemeindeleben.</p>
+
+        <h2>Zulässige Nutzung</h2>
+        <p>Du stimmst zu, die App nicht in einer Weise zu nutzen, die geltendes Recht verletzt, die Rechte anderer verletzt oder versucht, den Quellcode oder die Ressourcen der App zu stören, zu dekompilieren oder zu extrahieren, über das hinaus, was für deine eigene bestimmungsgemäße persönliche Nutzung erforderlich ist.</p>
+
+        <h2>Keine Gewährleistung</h2>
+        <p>Die App wird „wie besehen" und „wie verfügbar" bereitgestellt, ohne jegliche ausdrückliche oder stillschweigende Gewährleistung. Wir garantieren nicht, dass die App unterbrechungsfrei, fehlerfrei oder jederzeit verfügbar sein wird.</p>
+
+        <h2>Haftungsbeschränkung</h2>
+        <p>Im gesetzlich zulässigen Umfang haftet Gustavo Alves nicht für indirekte, zufällige oder Folgeschäden, die sich aus deiner Nutzung der App oder der Unmöglichkeit ihrer Nutzung ergeben.</p>
+
+        <h2>Änderungen der App oder dieser Bedingungen</h2>
+        <p>Wir können die App oder diese Bedingungen von Zeit zu Zeit aktualisieren. Die fortgesetzte Nutzung der App nach Inkrafttreten von Änderungen bedeutet, dass du die aktualisierten Bedingungen akzeptierst.</p>
+
+        <h2>Kündigung</h2>
+        <p>Du kannst die Nutzung der App jederzeit beenden, indem du sie löschst. Wir können die App ganz oder teilweise jederzeit aussetzen oder einstellen.</p>
+
+        <h2>Anwendbares Recht</h2>
+        <p>Diese Bedingungen unterliegen dem Recht Portugals, ohne Berücksichtigung seiner Kollisionsnormen.</p>
+
+        <h2>Kontakt</h2>
+        <p>Fragen zu diesen Bedingungen können an gustavoalvesalvesgustavo@gmail.com gesendet werden.</p>
+      </div>
+
+      <div class="lang" data-lang="fr" hidden>
+        <h1>Conditions d'Utilisation</h1>
+        <div class="meta">En vigueur depuis le 16 septembre 2026 · S'applique à l'application iOS Until He Comes</div>
+
+        <h2>Acceptation des Conditions</h2>
+        <p>En téléchargeant, installant ou utilisant Until He Comes (l'« Application »), vous acceptez ces Conditions d'Utilisation. Si vous n'êtes pas d'accord, veuillez ne pas utiliser l'Application.</p>
+
+        <h2>Licence d'Utilisation de l'Application</h2>
+        <p>Sous réserve des présentes Conditions, il vous est accordé une licence personnelle, non exclusive, incessible et révocable pour utiliser l'Application sur les appareils Apple que vous possédez ou contrôlez, pour votre usage personnel et non commercial, conformément aux conditions de l'App Store d'Apple.</p>
+
+        <h2>Contenu et Propriété Intellectuelle</h2>
+        <p>La conception, le code, le texte des messages sélectionnés et la présentation visuelle de l'Application appartiennent à Gustavo Alves. Les citations bibliques proviennent de traductions de la Bible du domaine public — la World English Bible (anglais), la traduction de João Ferreira de Almeida (portugais), la traduction Reina-Valera (espagnol), la Bible de Luther (allemand), la Bible Martin (français), la Bible Riveduta (italien), la Union Version (chinois, 和合本), la Traduction synodale (russe), la traduction Meiji/Taishō (japonais), la Korean Revised Version (coréen), la Statenvertaling (néerlandais), la Bible de l'Église de 1917 (suédois), la traduction Bibelselskapet (norvégien), la Bible danoise de 1871 (danois), la Bible de Károli (hongrois), la Bible de Kralice (tchèque) et la traduction Cornilescu (roumain) — toutes libres de restrictions de droits d'auteur dans le monde entier. Vous ne pouvez pas copier, modifier, désassembler, redistribuer ou créer des œuvres dérivées de l'Application elle-même au-delà de ce que la loi applicable permet expressément.</p>
+
+        <h2>La Nature du Contenu de Cette Application</h2>
+        <p>Until He Comes présente une perspective chrétienne particulière sur la vigilance et la préparation au retour du Christ, centrée sur l'idée que « personne ne connaît ni le jour ni l'heure » (Matthieu 24:36). C'est une application indépendante, non affiliée, non approuvée et non produite au nom d'une église ou d'une confession spécifique, et elle ne remplace pas l'accompagnement pastoral, l'étude théologique ou la vie communautaire.</p>
+
+        <h2>Utilisation Acceptable</h2>
+        <p>Vous acceptez de ne pas utiliser l'Application d'une manière qui viole la loi applicable, porte atteinte aux droits d'autrui, ou tente de perturber, décompiler ou extraire le code source ou les ressources de l'Application au-delà de ce qui est nécessaire à votre propre usage personnel prévu.</p>
+
+        <h2>Aucune Garantie</h2>
+        <p>L'Application est fournie « telle quelle » et « selon sa disponibilité », sans garantie d'aucune sorte, expresse ou implicite. Nous ne garantissons pas que l'Application sera ininterrompue, exempte d'erreurs ou disponible à tout moment.</p>
+
+        <h2>Limitation de Responsabilité</h2>
+        <p>Dans toute la mesure permise par la loi, Gustavo Alves ne pourra être tenu responsable de tout dommage indirect, accessoire ou consécutif résultant de votre utilisation, ou de votre incapacité à utiliser, l'Application.</p>
+
+        <h2>Modifications de l'Application ou de Ces Conditions</h2>
+        <p>Nous pouvons mettre à jour l'Application ou ces Conditions de temps à autre. La poursuite de l'utilisation de l'Application après l'entrée en vigueur des modifications signifie que vous acceptez les Conditions mises à jour.</p>
+
+        <h2>Résiliation</h2>
+        <p>Vous pouvez cesser d'utiliser l'Application à tout moment en la supprimant. Nous pouvons suspendre ou interrompre l'Application, en tout ou en partie, à tout moment.</p>
+
+        <h2>Droit Applicable</h2>
+        <p>Ces Conditions sont régies par les lois du Portugal, sans égard à ses principes de conflit de lois.</p>
+
+        <h2>Contactez-nous</h2>
+        <p>Les questions concernant ces Conditions peuvent être envoyées à gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="it" hidden>
+        <h1>Termini di Utilizzo</h1>
+        <div class="meta">In vigore dal 16 settembre 2026 · Si applica all'app iOS Until He Comes</div>
+
+        <h2>Accettazione dei Termini</h2>
+        <p>Scaricando, installando o utilizzando Until He Comes (l'"App"), accetti questi Termini di Utilizzo. Se non sei d'accordo, ti preghiamo di non utilizzare l'App.</p>
+
+        <h2>Licenza d'Uso dell'App</h2>
+        <p>Soggetto a questi Termini, ti viene concessa una licenza personale, non esclusiva, non trasferibile e revocabile per utilizzare l'App su dispositivi Apple che possiedi o controlli, per il tuo uso personale e non commerciale, in conformità con i termini dell'App Store di Apple.</p>
+
+        <h2>Contenuto e Proprietà Intellettuale</h2>
+        <p>Il design, il codice, il testo dei messaggi curati e la presentazione visiva dell'App appartengono a Gustavo Alves. Le citazioni bibliche provengono da traduzioni della Bibbia di pubblico dominio — la World English Bible (inglese), la traduzione di João Ferreira de Almeida (portoghese), la traduzione Reina-Valera (spagnolo), la Bibbia di Lutero (tedesco), la Bibbia Martin (francese), la Bibbia Riveduta (italiano), la Union Version (cinese, 和合本), la Traduzione Sinodale (russo), la traduzione Meiji/Taishō (giapponese), la Korean Revised Version (coreano), la Statenvertaling (olandese), la Bibbia della Chiesa del 1917 (svedese), la traduzione Bibelselskapet (norvegese), la Bibbia Danese del 1871 (danese), la Bibbia di Károli (ungherese), la Bibbia di Kralice (ceco) e la traduzione Cornilescu (rumeno) — tutte libere da restrizioni di copyright in tutto il mondo. Non puoi copiare, modificare, decompilare, ridistribuire o creare opere derivate dall'App stessa oltre a quanto espressamente consentito dalla legge applicabile.</p>
+
+        <h2>La Natura del Contenuto di Questa App</h2>
+        <p>Until He Comes presenta una particolare prospettiva cristiana sulla vigilanza e la preparazione per il ritorno di Cristo, incentrata sull'idea che "nessuno sa il giorno né l'ora" (Matteo 24:36). È un'app indipendente, non affiliata, non sostenuta né prodotta per conto di alcuna chiesa o denominazione specifica, e non sostituisce la guida pastorale, lo studio teologico o la vita comunitaria.</p>
+
+        <h2>Uso Consentito</h2>
+        <p>Accetti di non utilizzare l'App in alcun modo che violi la legge applicabile, leda i diritti altrui, o tenti di interrompere, decompilare o estrarre codice sorgente o risorse dall'App oltre a quanto necessario per il tuo uso personale previsto.</p>
+
+        <h2>Nessuna Garanzia</h2>
+        <p>L'App è fornita "così com'è" e "come disponibile", senza garanzie di alcun tipo, espresse o implicite. Non garantiamo che l'App sarà ininterrotta, priva di errori o disponibile in ogni momento.</p>
+
+        <h2>Limitazione di Responsabilità</h2>
+        <p>Nella misura massima consentita dalla legge, Gustavo Alves non sarà responsabile per eventuali danni indiretti, incidentali o consequenziali derivanti dal tuo utilizzo, o impossibilità di utilizzo, dell'App.</p>
+
+        <h2>Modifiche all'App o a Questi Termini</h2>
+        <p>Potremmo aggiornare l'App o questi Termini di volta in volta. L'uso continuato dell'App dopo l'entrata in vigore delle modifiche significa che accetti i Termini aggiornati.</p>
+
+        <h2>Cessazione</h2>
+        <p>Puoi smettere di utilizzare l'App in qualsiasi momento eliminandola. Potremmo sospendere o interrompere l'App, in tutto o in parte, in qualsiasi momento.</p>
+
+        <h2>Legge Applicabile</h2>
+        <p>Questi Termini sono regolati dalle leggi del Portogallo, senza riguardo ai suoi principi di conflitto di leggi.</p>
+
+        <h2>Contattaci</h2>
+        <p>Domande su questi Termini possono essere inviate a gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="zhHans" hidden>
+        <h1>使用条款</h1>
+        <div class="meta">自2026年9月16日起生效 · 适用于 Until He Comes iOS 应用</div>
+
+        <h2>条款接受</h2>
+        <p>下载、安装或使用 Until He Comes（"本应用"）即表示你同意本使用条款。如果你不同意，请不要使用本应用。</p>
+
+        <h2>应用使用许可</h2>
+        <p>根据本条款，你被授予一项个人的、非独占的、不可转让的、可撤销的许可，可在你拥有或控制的 Apple 设备上使用本应用，仅限个人非商业用途，并需遵守 Apple App Store 的相关条款。</p>
+
+        <h2>内容与知识产权</h2>
+        <p>本应用的设计、代码、精选信息文本及视觉呈现归 Gustavo Alves 所有。经文引用取自公共领域的圣经译本——《世界英语圣经》（英文）、若昂·费雷拉·德·阿尔梅达译本（葡萄牙文）、雷纳-瓦莱拉译本（西班牙文）、路德圣经（德文）、马丁圣经（法文）、利维度塔圣经（意大利文）、和合本（中文）、俄文正教会译本（俄文）、明治/大正译本（日文）、韩文修订译本（韩文）、司坦译本（荷兰文）、1917年教会圣经（瑞典文）、Bibelselskapet译本（挪威文）、1871年丹麦圣经（丹麦文）、卡罗利圣经（匈牙利文）、克拉利采圣经（捷克文）以及科尔尼列斯库译本（罗马尼亚文）——这些译本在全世界均不受版权限制。除适用法律明确许可外，你不得复制、修改、逆向工程、再分发本应用本身或创建其衍生作品。</p>
+
+        <h2>本应用内容的性质</h2>
+        <p>Until He Comes 呈现一种特定的基督教视角，关于警醒并预备迎接基督的再来，其核心理念是"没有人知道那日子，那时辰"（马太福音24:36）。这是一款独立应用，不隶属于、不代表任何特定教会或教派，也不获其认可或制作，它也不能替代牧养指导、神学研究或团契生活。</p>
+
+        <h2>可接受使用</h2>
+        <p>你同意不以任何违反适用法律、侵犯他人权利的方式使用本应用，也不得尝试干扰、反编译或提取本应用的源代码或资源，超出你个人预期使用所需的范围。</p>
+
+        <h2>无担保</h2>
+        <p>本应用按"原样"和"按可用性"提供，不提供任何明示或暗示的担保。我们不保证本应用将不间断、无错误或始终可用。</p>
+
+        <h2>责任限制</h2>
+        <p>在法律允许的最大范围内，Gustavo Alves 不对因你使用或无法使用本应用而产生的任何间接、附带或后果性损害承担责任。</p>
+
+        <h2>应用或本条款的变更</h2>
+        <p>我们可能会不时更新本应用或本条款。变更生效后继续使用本应用即表示你接受更新后的条款。</p>
+
+        <h2>终止</h2>
+        <p>你可以随时通过删除本应用来停止使用。我们可能随时暂停或终止本应用的全部或部分功能。</p>
+
+        <h2>适用法律</h2>
+        <p>本条款受葡萄牙法律管辖，不考虑其法律冲突原则。</p>
+
+        <h2>联系我们</h2>
+        <p>关于本条款的问题可以发送至 gustavoalvesalvesgustavo@gmail.com。</p>
+      </div>
+
+      <div class="lang" data-lang="zhHant" hidden>
+        <h1>使用條款</h1>
+        <div class="meta">自2026年9月16日起生效 · 適用於 Until He Comes iOS 應用程式</div>
+
+        <h2>條款接受</h2>
+        <p>下載、安裝或使用 Until He Comes（「本應用程式」）即表示你同意本使用條款。如果你不同意，請不要使用本應用程式。</p>
+
+        <h2>應用程式使用授權</h2>
+        <p>根據本條款，你被授予一項個人的、非獨家的、不可轉讓的、可撤銷的授權，可在你擁有或控制的 Apple 裝置上使用本應用程式，僅限個人非商業用途，並需遵守 Apple App Store 的相關條款。</p>
+
+        <h2>內容與智慧財產權</h2>
+        <p>本應用程式的設計、程式碼、精選訊息文字及視覺呈現歸 Gustavo Alves 所有。經文引用取自公共領域的聖經譯本——《世界英語聖經》（英文）、若昂·費雷拉·德·阿爾梅達譯本（葡萄牙文）、雷納-瓦萊拉譯本（西班牙文）、路德聖經（德文）、馬丁聖經（法文）、利維度塔聖經（義大利文）、和合本（中文）、俄文正教會譯本（俄文）、明治/大正譯本（日文）、韓文修訂譯本（韓文）、司坦譯本（荷蘭文）、1917年教會聖經（瑞典文）、Bibelselskapet譯本（挪威文）、1871年丹麥聖經（丹麥文）、卡羅利聖經（匈牙利文）、克拉利采聖經（捷克文）以及科爾尼列斯庫譯本（羅馬尼亞文）——這些譯本在全世界均不受版權限制。除適用法律明確許可外，你不得複製、修改、逆向工程、重新散布本應用程式本身或創建其衍生作品。</p>
+
+        <h2>本應用程式內容的性質</h2>
+        <p>Until He Comes 呈現一種特定的基督教視角，關於警醒並預備迎接基督的再來，其核心理念是「沒有人知道那日子，那時辰」（馬太福音24:36）。這是一款獨立應用程式，不隸屬於、不代表任何特定教會或教派，也不獲其認可或製作，它也不能取代牧養指導、神學研究或團契生活。</p>
+
+        <h2>可接受使用</h2>
+        <p>你同意不以任何違反適用法律、侵犯他人權利的方式使用本應用程式，也不得嘗試干擾、反編譯或擷取本應用程式的原始碼或資源，超出你個人預期使用所需的範圍。</p>
+
+        <h2>無擔保</h2>
+        <p>本應用程式按「原樣」和「按可用性」提供，不提供任何明示或暗示的擔保。我們不保證本應用程式將不中斷、無錯誤或始終可用。</p>
+
+        <h2>責任限制</h2>
+        <p>在法律允許的最大範圍內，Gustavo Alves 不對因你使用或無法使用本應用程式而產生的任何間接、附帶或後果性損害承擔責任。</p>
+
+        <h2>應用程式或本條款的變更</h2>
+        <p>我們可能會不時更新本應用程式或本條款。變更生效後繼續使用本應用程式即表示你接受更新後的條款。</p>
+
+        <h2>終止</h2>
+        <p>你可以隨時透過刪除本應用程式來停止使用。我們可能隨時暫停或終止本應用程式的全部或部分功能。</p>
+
+        <h2>適用法律</h2>
+        <p>本條款受葡萄牙法律管轄，不考慮其法律衝突原則。</p>
+
+        <h2>聯絡我們</h2>
+        <p>關於本條款的問題可以傳送至 gustavoalvesalvesgustavo@gmail.com。</p>
+      </div>
+
+      <div class="lang" data-lang="ru" hidden>
+        <h1>Условия использования</h1>
+        <div class="meta">Действуют с 16 сентября 2026 года · Применяются к приложению Until He Comes для iOS</div>
+
+        <h2>Принятие условий</h2>
+        <p>Загружая, устанавливая или используя Until He Comes («Приложение»), вы соглашаетесь с настоящими Условиями использования. Если вы не согласны, пожалуйста, не используйте Приложение.</p>
+
+        <h2>Лицензия на использование Приложения</h2>
+        <p>В соответствии с настоящими Условиями вам предоставляется личная, неисключительная, непередаваемая, отзывная лицензия на использование Приложения на устройствах Apple, которыми вы владеете или которые контролируете, для вашего личного некоммерческого использования, в соответствии с условиями App Store компании Apple.</p>
+
+        <h2>Содержание и интеллектуальная собственность</h2>
+        <p>Дизайн, код, подобранный текст сообщений и визуальное оформление Приложения принадлежат Gustavo Alves. Библейские цитаты взяты из переводов Библии, находящихся в общественном достоянии — World English Bible (английский), перевод Жуана Феррейры де Алмейды (португальский), перевод Рейна-Валера (испанский), Библия Лютера (немецкий), Библия Мартина (французский), Библия Ривведута (итальянский), Union Version (китайский, 和合本), Синодальный перевод (русский), перевод Мэйдзи/Тайсё (японский), Корейский исправленный перевод (корейский), Statenvertaling (нидерландский), Церковная Библия 1917 года (шведский), перевод Bibelselskapet (норвежский), датская Библия 1871 года (датский), Библия Кароли (венгерский), Библия Кралицкая (чешский) и перевод Корнилеску (румынский) — все они свободны от ограничений авторского права во всём мире. Вы не можете копировать, изменять, декомпилировать, распространять или создавать производные работы на основе самого Приложения, кроме случаев, прямо разрешённых применимым законодательством.</p>
+
+        <h2>Характер содержания этого Приложения</h2>
+        <p>Until He Comes представляет определённую христианскую точку зрения на бодрствование и готовность ко второму пришествию Христа, основанную на идее, что «никто не знает ни дня, ни часа» (Матфея 24:36). Это независимое приложение, не связанное с какой-либо конкретной церковью или конфессией, не одобренное и не созданное от её имени, и оно не заменяет пастырское наставление, богословское изучение или общинное богослужение.</p>
+
+        <h2>Допустимое использование</h2>
+        <p>Вы соглашаетесь не использовать Приложение каким-либо образом, нарушающим применимое законодательство, ущемляющим права других лиц, или пытающимся нарушить работу, декомпилировать или извлечь исходный код или ресурсы Приложения сверх того, что необходимо для вашего личного предполагаемого использования.</p>
+
+        <h2>Отсутствие гарантии</h2>
+        <p>Приложение предоставляется «как есть» и «по мере доступности», без каких-либо гарантий, явных или подразумеваемых. Мы не гарантируем, что Приложение будет работать бесперебойно, без ошибок или будет доступно в любое время.</p>
+
+        <h2>Ограничение ответственности</h2>
+        <p>В максимальной степени, разрешённой законом, Gustavo Alves не несёт ответственности за какие-либо косвенные, случайные или последующие убытки, возникающие в результате использования вами Приложения или невозможности его использования.</p>
+
+        <h2>Изменения Приложения или настоящих Условий</h2>
+        <p>Мы можем время от времени обновлять Приложение или настоящие Условия. Продолжение использования Приложения после вступления изменений в силу означает, что вы принимаете обновлённые Условия.</p>
+
+        <h2>Прекращение действия</h2>
+        <p>Вы можете прекратить использование Приложения в любое время, удалив его. Мы можем приостановить или прекратить работу Приложения, полностью или частично, в любое время.</p>
+
+        <h2>Применимое право</h2>
+        <p>Настоящие Условия регулируются законодательством Португалии, без учёта его коллизионных норм.</p>
+
+        <h2>Свяжитесь с нами</h2>
+        <p>Вопросы об этих Условиях можно отправлять на gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="ja" hidden>
+        <h1>利用規約</h1>
+        <div class="meta">2026年9月16日発効 · iOSアプリ「Until He Comes」に適用されます</div>
+
+        <h2>規約の承諾</h2>
+        <p>Until He Comes（以下「本アプリ」）をダウンロード、インストール、または使用することにより、あなたは本利用規約に同意したものとみなされます。同意されない場合は、本アプリを使用しないでください。</p>
+
+        <h2>アプリ使用許諾</h2>
+        <p>本規約に従い、あなたが所有または管理するApple製デバイス上で、Apple App Storeの規約に従い、個人的かつ非商業的な利用目的で本アプリを使用するための、個人的、非独占的、譲渡不可、取消可能なライセンスが付与されます。</p>
+
+        <h2>コンテンツおよび知的財産</h2>
+        <p>本アプリのデザイン、コード、厳選されたメッセージ本文、およびビジュアル表現はGustavo Alvesに帰属します。聖書の引用は、World English Bible（英語）、ジョアン・フェレイラ・デ・アルメイダ訳（ポルトガル語）、レイナ・バレラ訳（スペイン語）、ルター訳聖書（ドイツ語）、マルタン訳聖書（フランス語）、リヴェドゥータ訳聖書（イタリア語）、和合本（中国語）、シノド訳（ロシア語）、明治元訳・大正改訳（日本語）、改訳（韓国語）、Statenvertaling（オランダ語）、1917年教会訳（スウェーデン語）、ビーベルセルスカペト訳（ノルウェー語）、1871年デンマーク語訳（デンマーク語）、カーロリ聖書（ハンガリー語）、クラリツェ聖書（チェコ語）、コルニレスク訳（ルーマニア語）という、いずれも世界的に著作権の制約を受けないパブリックドメインの聖書訳から取られています。適用法が明示的に許可する範囲を超えて、本アプリ自体を複製、改変、リバースエンジニアリング、再配布、または二次的著作物を作成することはできません。</p>
+
+        <h2>本アプリのコンテンツの性質について</h2>
+        <p>Untilは、「その日、その時は、だれも知らない」（マタイ24:36）という考えを中心とした、キリストの再臨に対する警戒と備えについての特定のキリスト教的視点を提示します。本アプリは独立したものであり、特定の教会や教派に所属、承認、またはその代理として制作されたものではなく、牧会的な導き、神学的研究、または共同体での礼拝の代わりとなるものではありません。</p>
+
+        <h2>許容される利用</h2>
+        <p>あなたは、適用法に違反する方法、他者の権利を侵害する方法、または本来意図された個人的利用に必要な範囲を超えて本アプリのソースコードやリソースを妨害、逆コンパイル、抽出しようとする方法で、本アプリを使用しないことに同意するものとします。</p>
+
+        <h2>保証の否認</h2>
+        <p>本アプリは「現状のまま」および「提供可能な範囲で」提供され、明示または黙示を問わずいかなる種類の保証もありません。本アプリが中断なく、エラーなく、または常時利用可能であることを保証するものではありません。</p>
+
+        <h2>責任の制限</h2>
+        <p>法律で許容される最大限の範囲において、Gustavo Alvesは、本アプリの利用または利用不能から生じるいかなる間接的、付随的、または結果的損害についても責任を負いません。</p>
+
+        <h2>アプリまたは本規約の変更</h2>
+        <p>私たちは随時、本アプリまたは本規約を更新することがあります。変更発効後も本アプリの利用を継続することは、更新後の規約に同意したことを意味します。</p>
+
+        <h2>終了</h2>
+        <p>あなたはいつでも本アプリを削除することで利用を終了できます。私たちはいつでも、本アプリの全部または一部を一時停止または終了することがあります。</p>
+
+        <h2>準拠法</h2>
+        <p>本規約はポルトガルの法律に準拠し、その抵触法の原則にかかわらず適用されます。</p>
+
+        <h2>お問い合わせ</h2>
+        <p>本規約に関するご質問は gustavoalvesalvesgustavo@gmail.com までお送りください。</p>
+      </div>
+
+      <div class="lang" data-lang="ko" hidden>
+        <h1>이용약관</h1>
+        <div class="meta">2026년 9월 16일부터 시행 · Until He Comes iOS 앱에 적용됩니다</div>
+
+        <h2>약관의 동의</h2>
+        <p>Until He Comes("본 앱")을 다운로드, 설치 또는 사용함으로써, 귀하는 본 이용약관에 동의하는 것으로 간주됩니다. 동의하지 않으시면 본 앱을 사용하지 마십시오.</p>
+
+        <h2>앱 사용 라이선스</h2>
+        <p>본 약관에 따라, 귀하는 귀하가 소유하거나 관리하는 Apple 기기에서, Apple App Store 약관에 따라 개인적이고 비상업적인 목적으로 본 앱을 사용할 수 있는 개인적이고 비독점적이며 양도 불가능하고 취소 가능한 라이선스를 부여받습니다.</p>
+
+        <h2>콘텐츠 및 지적 재산권</h2>
+        <p>본 앱의 디자인, 코드, 선별된 메시지 텍스트 및 시각적 표현은 Gustavo Alves에게 귀속됩니다. 성경 인용문은 World English Bible(영어), 주앙 페헤이라 지 알메이다 역(포르투갈어), 레이나-발레라 역(스페인어), 루터 성경(독일어), 마르탱 성경(프랑스어), 리베두타 성경(이탈리아어), 화합본(중국어), 시노달 역(러시아어), 메이지/다이쇼 역(일본어), 스타턴 역(네덜란드어), 개역한글(한국어), 1917년 교회 성경(스웨덴어), 비벨셀스카페트 역(노르웨이어), 1871년 덴마크어 성경(덴마크어), 카롤리 성경(헝가리어), 크랄리체 성경(체코어), 코르닐레스쿠 역(루마니아어)이라는, 전 세계적으로 저작권 제한이 없는 퍼블릭 도메인 성경 번역본에서 가져온 것입니다. 귀하는 적용 법률이 명시적으로 허용하는 범위를 넘어 본 앱 자체를 복사, 수정, 역설계, 재배포하거나 2차적 저작물을 만들 수 없습니다.</p>
+
+        <h2>본 앱 콘텐츠의 성격</h2>
+        <p>Until은 "그 날과 그 때는 아무도 모른다"(마태복음 24:36)는 개념을 중심으로, 그리스도의 재림에 대한 깨어 있음과 준비에 관한 특정한 기독교적 관점을 제시합니다. 이는 독립적인 앱으로, 특정 교회나 교단과 제휴하거나 그로부터 승인받거나 그를 대신해 제작된 것이 아니며, 목회적 지도, 신학적 연구, 또는 공동체 예배를 대체하지 않습니다.</p>
+
+        <h2>허용되는 사용</h2>
+        <p>귀하는 적용 법률을 위반하거나, 타인의 권리를 침해하거나, 본래 의도된 개인적 사용에 필요한 범위를 넘어 본 앱의 소스 코드나 리소스를 방해, 역컴파일 또는 추출하려는 방식으로 본 앱을 사용하지 않는 데 동의합니다.</p>
+
+        <h2>보증의 부인</h2>
+        <p>본 앱은 명시적이든 묵시적이든 어떠한 종류의 보증도 없이 "있는 그대로" 및 "제공 가능한 대로" 제공됩니다. 저희는 본 앱이 중단 없이, 오류 없이, 또는 항상 이용 가능할 것이라고 보장하지 않습니다.</p>
+
+        <h2>책임의 제한</h2>
+        <p>법률이 허용하는 최대 범위 내에서, Gustavo Alves는 귀하의 본 앱 사용 또는 사용 불능으로 인해 발생하는 어떠한 간접적, 부수적 또는 결과적 손해에 대해서도 책임을 지지 않습니다.</p>
+
+        <h2>앱 또는 본 약관의 변경</h2>
+        <p>저희는 수시로 본 앱 또는 본 약관을 업데이트할 수 있습니다. 변경 사항이 발효된 후에도 본 앱을 계속 사용하는 것은 업데이트된 약관에 동의하는 것을 의미합니다.</p>
+
+        <h2>해지</h2>
+        <p>귀하는 언제든지 본 앱을 삭제함으로써 사용을 중단할 수 있습니다. 저희는 언제든지 본 앱의 전부 또는 일부를 중단하거나 종료할 수 있습니다.</p>
+
+        <h2>준거법</h2>
+        <p>본 약관은 포르투갈 법률에 따라 규율되며, 그 법률의 저촉 원칙은 고려하지 않습니다.</p>
+
+        <h2>문의하기</h2>
+        <p>본 약관에 관한 문의는 gustavoalvesalvesgustavo@gmail.com으로 보내실 수 있습니다.</p>
+      </div>
+
+      <div class="lang" data-lang="nl" hidden>
+        <h1>Gebruiksvoorwaarden</h1>
+        <div class="meta">Van kracht sinds 16 september 2026 · Van toepassing op de Until He Comes iOS-app</div>
+
+        <h2>Aanvaarding van de Voorwaarden</h2>
+        <p>Door Until He Comes (de "App") te downloaden, installeren of gebruiken, ga je akkoord met deze Gebruiksvoorwaarden. Als je niet akkoord gaat, gebruik de App dan niet.</p>
+
+        <h2>Licentie voor Gebruik van de App</h2>
+        <p>Onder voorbehoud van deze Voorwaarden krijg je een persoonlijke, niet-exclusieve, niet-overdraagbare, herroepbare licentie om de App te gebruiken op Apple-apparaten die je bezit of beheert, voor je eigen persoonlijk, niet-commercieel gebruik, in overeenstemming met de voorwaarden van Apple's App Store.</p>
+
+        <h2>Inhoud &amp; Intellectueel Eigendom</h2>
+        <p>Het ontwerp, de code, de samengestelde berichttekst en de visuele presentatie van de App behoren toe aan Gustavo Alves. Bijbelcitaten komen uit public-domain Bijbelvertalingen — de World English Bible (Engels), de vertaling van João Ferreira de Almeida (Portugees), de Reina-Valera-vertaling (Spaans), de Lutherbijbel (Duits), de Bijbel van Martin (Frans), de Riveduta-bijbel (Italiaans), de Union Version (Chinees, 和合本), de Synodale Vertaling (Russisch), de Meiji/Taishō-vertaling (Japans), de Korean Revised Version (Koreaans), de Statenvertaling (Nederlands), de Kerkbijbel van 1917 (Zweeds), de Bibelselskapet-vertaling (Noors), de Deense Bijbel van 1871 (Deens), de Károli-bijbel (Hongaars), de Bijbel van Kralice (Tsjechisch) en de Cornilescu-vertaling (Roemeens) — allemaal wereldwijd vrij van auteursrechtelijke beperkingen. Je mag de App zelf niet kopiëren, wijzigen, reverse-engineeren, herdistribueren, of er afgeleide werken van maken, verder dan wat de toepasselijke wet uitdrukkelijk toestaat.</p>
+
+        <h2>De Aard van de Inhoud van Deze App</h2>
+        <p>Until He Comes presenteert een bepaald christelijk perspectief op waakzaamheid en gereedheid voor de wederkomst van Christus, gecentreerd rond het idee dat "niemand de dag of het uur kent" (Mattheüs 24:36). Het is een onafhankelijke app, niet verbonden aan, onderschreven door, of geproduceerd namens enige specifieke kerk of denominatie, en het is geen vervanging voor pastorale begeleiding, theologische studie of gemeenschapsaanbidding.</p>
+
+        <h2>Aanvaardbaar Gebruik</h2>
+        <p>Je gaat ermee akkoord de App niet te gebruiken op een manier die toepasselijke wetgeving schendt, de rechten van anderen schendt, of probeert de broncode of assets van de App te verstoren, te decompileren of te extraheren, verder dan nodig is voor je eigen bedoelde persoonlijke gebruik ervan.</p>
+
+        <h2>Geen Garantie</h2>
+        <p>De App wordt geleverd "zoals hij is" en "zoals beschikbaar", zonder enige vorm van garantie, expliciet of impliciet. We garanderen niet dat de App ononderbroken, foutloos of altijd beschikbaar zal zijn.</p>
+
+        <h2>Beperking van Aansprakelijkheid</h2>
+        <p>Voor zover wettelijk toegestaan, is Gustavo Alves niet aansprakelijk voor enige indirecte, incidentele of gevolgschade voortvloeiend uit je gebruik van, of onvermogen om de App te gebruiken.</p>
+
+        <h2>Wijzigingen aan de App of Deze Voorwaarden</h2>
+        <p>We kunnen de App of deze Voorwaarden van tijd tot tijd bijwerken. Voortgezet gebruik van de App nadat wijzigingen van kracht worden, betekent dat je de bijgewerkte Voorwaarden accepteert.</p>
+
+        <h2>Beëindiging</h2>
+        <p>Je kunt op elk moment stoppen met het gebruik van de App door deze te verwijderen. Wij kunnen de App geheel of gedeeltelijk op elk moment opschorten of stopzetten.</p>
+
+        <h2>Toepasselijk Recht</h2>
+        <p>Deze Voorwaarden worden beheerst door de wetten van Portugal, ongeacht de beginselen van wetsconflicten daarvan.</p>
+
+        <h2>Neem Contact Met Ons Op</h2>
+        <p>Vragen over deze Voorwaarden kunnen worden gestuurd naar gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="sv" hidden>
+        <h1>Användarvillkor</h1>
+        <div class="meta">Gäller från 16 september 2026 · Gäller för iOS-appen Until He Comes</div>
+
+        <h2>Godkännande Av Villkoren</h2>
+        <p>Genom att ladda ner, installera eller använda Until He Comes ("Appen") godkänner du dessa Användarvillkor. Om du inte godkänner dem, vänligen använd inte Appen.</p>
+
+        <h2>Licens Att Använda Appen</h2>
+        <p>Enligt dessa Villkor beviljas du en personlig, icke-exklusiv, icke-överlåtbar, återkallelig licens att använda Appen på Apple-enheter du äger eller kontrollerar, för ditt eget personliga, icke-kommersiella bruk, i enlighet med Apples App Store-villkor.</p>
+
+        <h2>Innehåll Och Immateriella Rättigheter</h2>
+        <p>Appens design, kod, utvalda meddelandetext och visuella presentation tillhör Gustavo Alves. Bibelcitat är hämtade från bibelöversättningar i det fria — World English Bible (engelska), João Ferreira de Almeidas översättning (portugisiska), Reina-Valera-översättningen (spanska), Luthers bibel (tyska), Martins bibel (franska), Riveduta-bibeln (italienska), Union Version (kinesiska, 和合本), Synodalöversättningen (ryska), Meiji/Taishō-översättningen (japanska), Korean Revised Version (koreanska) och Statenvertaling (nederländska) — alla fria från upphovsrättsbegränsningar världen över. Du får inte kopiera, ändra, dekompilera, distribuera vidare eller skapa härledda verk från Appen själv utöver vad tillämplig lag uttryckligen tillåter.</p>
+
+        <h2>Denna Apps Innehålls Natur</h2>
+        <p>Until He Comes presenterar ett särskilt kristet perspektiv på vaksamhet och beredskap för Kristi återkomst, centrerat kring tanken att "ingen känner dagen eller stunden" (Matteus 24:36). Det är en oberoende app, inte ansluten till, godkänd av eller producerad på uppdrag av någon specifik kyrka eller samfund, och den ersätter inte pastoral vägledning, teologiska studier eller gemenskapsgudstjänst.</p>
+
+        <h2>Godtagbar Användning</h2>
+        <p>Du samtycker till att inte använda Appen på något sätt som bryter mot tillämplig lag, kränker andras rättigheter, eller försöker störa, dekompilera eller extrahera källkod eller resurser från Appen utöver vad som behövs för ditt eget avsedda personliga bruk av den.</p>
+
+        <h2>Ingen Garanti</h2>
+        <p>Appen tillhandahålls "i befintligt skick" och "som tillgänglig", utan garantier av något slag, uttryckliga eller underförstådda. Vi garanterar inte att Appen kommer att vara oavbruten, felfri eller alltid tillgänglig.</p>
+
+        <h2>Ansvarsbegränsning</h2>
+        <p>I den utsträckning lagen tillåter kommer Gustavo Alves inte att hållas ansvarig för några indirekta, tillfälliga eller följdskador som uppstår från din användning av, eller oförmåga att använda, Appen.</p>
+
+        <h2>Ändringar Av Appen Eller Dessa Villkor</h2>
+        <p>Vi kan då och då uppdatera Appen eller dessa Villkor. Fortsatt användning av Appen efter att ändringar trätt i kraft innebär att du accepterar de uppdaterade Villkoren.</p>
+
+        <h2>Uppsägning</h2>
+        <p>Du kan när som helst sluta använda Appen genom att radera den. Vi kan när som helst pausa eller avsluta Appen, helt eller delvis.</p>
+
+        <h2>Tillämplig Lag</h2>
+        <p>Dessa Villkor styrs av Portugals lagar, utan hänsyn till dess lagvalsregler.</p>
+
+        <h2>Kontakta Oss</h2>
+        <p>Frågor om dessa Villkor kan skickas till gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="nb" hidden>
+        <h1>Bruksvilkår</h1>
+        <div class="meta">Gjelder fra 16. september 2026 · Gjelder for Until He Comes iOS-appen</div>
+
+        <h2>Aksept Av Vilkårene</h2>
+        <p>Ved å laste ned, installere eller bruke Until He Comes ("Appen") godtar du disse Bruksvilkårene. Hvis du ikke er enig, vennligst ikke bruk Appen.</p>
+
+        <h2>Lisens Til Å Bruke Appen</h2>
+        <p>I henhold til disse Vilkårene gis du en personlig, ikke-eksklusiv, ikke-overførbar, tilbakekallbar lisens til å bruke Appen på Apple-enheter du eier eller kontrollerer, til ditt eget personlige, ikke-kommersielle bruk, i samsvar med Apples App Store-vilkår.</p>
+
+        <h2>Innhold Og Immaterielle Rettigheter</h2>
+        <p>Appens design, kode, utvalgte meldingstekst og visuelle presentasjon tilhører Gustavo Alves. Bibelsitater er hentet fra bibeloversettelser i det fri — World English Bible (engelsk), João Ferreira de Almeidas oversettelse (portugisisk), Reina-Valera-oversettelsen (spansk), Luthers bibel (tysk), Martins bibel (fransk), Riveduta-bibelen (italiensk), Union Version (kinesisk, 和合本), Synodaloversettelsen (russisk), Meiji/Taishō-oversettelsen (japansk), Korean Revised Version (koreansk) og Statenvertaling (nederlandsk) — alle fri for opphavsrettslige begrensninger verden over. Du kan ikke kopiere, endre, dekompilere, videredistribuere eller lage avledede verk fra Appen selv utover det gjeldende lov uttrykkelig tillater.</p>
+
+        <h2>Denne Appens Innholds Natur</h2>
+        <p>Until He Comes presenterer et bestemt kristent perspektiv på våkenhet og beredskap for Kristi gjenkomst, sentrert rundt ideen om at "ingen kjenner dagen eller timen" (Matteus 24:36). Det er en uavhengig app, ikke tilknyttet, godkjent av eller produsert på vegne av noen bestemt kirke eller konfesjon, og den erstatter ikke sjelesørgerisk veiledning, teologiske studier eller fellesskapstilbedelse.</p>
+
+        <h2>Akseptabel Bruk</h2>
+        <p>Du samtykker i å ikke bruke Appen på noen måte som bryter gjeldende lov, krenker andres rettigheter, eller forsøker å forstyrre, dekompilere eller hente ut kildekode eller ressurser fra Appen utover det som trengs for din egen tiltenkte personlige bruk av den.</p>
+
+        <h2>Ingen Garanti</h2>
+        <p>Appen leveres "som den er" og "som tilgjengelig", uten noen form for garanti, uttrykt eller underforstått. Vi garanterer ikke at Appen vil være uavbrutt, feilfri eller alltid tilgjengelig.</p>
+
+        <h2>Ansvarsbegrensning</h2>
+        <p>I den grad loven tillater det, vil Gustavo Alves ikke holdes ansvarlig for noen indirekte, tilfeldige eller følgeskader som oppstår fra din bruk av, eller manglende evne til å bruke, Appen.</p>
+
+        <h2>Endringer I Appen Eller Disse Vilkårene</h2>
+        <p>Vi kan fra tid til annen oppdatere Appen eller disse Vilkårene. Fortsatt bruk av Appen etter at endringer trer i kraft betyr at du godtar de oppdaterte Vilkårene.</p>
+
+        <h2>Oppsigelse</h2>
+        <p>Du kan når som helst slutte å bruke Appen ved å slette den. Vi kan når som helst suspendere eller avslutte Appen, helt eller delvis.</p>
+
+        <h2>Gjeldende Lov</h2>
+        <p>Disse Vilkårene styres av lovene i Portugal, uten hensyn til dets lovvalgsregler.</p>
+
+        <h2>Kontakt Oss</h2>
+        <p>Spørsmål om disse Vilkårene kan sendes til gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="da" hidden>
+        <h1>Brugsvilkår</h1>
+        <div class="meta">Gælder fra 16. september 2026 · Gælder for Until He Comes iOS-appen</div>
+
+        <h2>Accept Af Vilkårene</h2>
+        <p>Ved at downloade, installere eller bruge Until He Comes ("Appen") accepterer du disse Brugsvilkår. Hvis du ikke er enig, bedes du ikke bruge Appen.</p>
+
+        <h2>Licens Til At Bruge Appen</h2>
+        <p>I henhold til disse Vilkår gives du en personlig, ikke-eksklusiv, ikke-overdragelig, tilbagekaldelig licens til at bruge Appen på Apple-enheder, du ejer eller kontrollerer, til din egen personlige, ikke-kommercielle brug, i overensstemmelse med Apples App Store-vilkår.</p>
+
+        <h2>Indhold Og Immaterielle Rettigheder</h2>
+        <p>Appens design, kode, udvalgte beskedtekst og visuelle præsentation tilhører Gustavo Alves. Bibelcitater er hentet fra bibeloversættelser i det fri — World English Bible (engelsk), João Ferreira de Almeidas oversættelse (portugisisk), Reina-Valera-oversættelsen (spansk), Luthers bibel (tysk), Martins bibel (fransk), Riveduta-bibelen (italiensk), Union Version (kinesisk, 和合本), Synodaloversættelsen (russisk), Meiji/Taishō-oversættelsen (japansk), Korean Revised Version (koreansk) og Statenvertaling (nederlandsk) — alle fri for ophavsretlige begrænsninger verden over. Du må ikke kopiere, ændre, dekompilere, videredistribuere eller skabe afledte værker fra Appen selv ud over, hvad gældende lov udtrykkeligt tillader.</p>
+
+        <h2>Denne Apps Indholds Natur</h2>
+        <p>Until He Comes præsenterer et bestemt kristent perspektiv på årvågenhed og beredskab for Kristi genkomst, centreret om ideen om, at "ingen kender dagen eller timen" (Matthæus 24:36). Det er en uafhængig app, ikke tilknyttet, godkendt af eller produceret på vegne af nogen bestemt kirke eller trossamfund, og den erstatter ikke pastoral vejledning, teologiske studier eller fællesskabsgudstjeneste.</p>
+
+        <h2>Acceptabel Brug</h2>
+        <p>Du accepterer ikke at bruge Appen på nogen måde, der overtræder gældende lov, krænker andres rettigheder, eller forsøger at forstyrre, dekompilere eller udtrække kildekode eller ressourcer fra Appen ud over, hvad der er nødvendigt for din egen tilsigtede personlige brug af den.</p>
+
+        <h2>Ingen Garanti</h2>
+        <p>Appen leveres "som den er" og "som tilgængelig", uden garantier af nogen art, udtrykkelige eller underforståede. Vi garanterer ikke, at Appen vil være uafbrudt, fejlfri eller altid tilgængelig.</p>
+
+        <h2>Ansvarsbegrænsning</h2>
+        <p>I det omfang loven tillader det, vil Gustavo Alves ikke være ansvarlig for nogen indirekte, hændelige eller følgeskader, der opstår som følge af din brug af, eller manglende evne til at bruge, Appen.</p>
+
+        <h2>Ændringer Af Appen Eller Disse Vilkår</h2>
+        <p>Vi kan fra tid til anden opdatere Appen eller disse Vilkår. Fortsat brug af Appen, efter at ændringer træder i kraft, betyder, at du accepterer de opdaterede Vilkår.</p>
+
+        <h2>Opsigelse</h2>
+        <p>Du kan til enhver tid stoppe med at bruge Appen ved at slette den. Vi kan til enhver tid suspendere eller afbryde Appen, helt eller delvist.</p>
+
+        <h2>Gældende Lov</h2>
+        <p>Disse Vilkår er underlagt lovgivningen i Portugal, uden hensyn til dets lovkonfliktprincipper.</p>
+
+        <h2>Kontakt Os</h2>
+        <p>Spørgsmål om disse Vilkår kan sendes til gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="hu" hidden>
+        <h1>Felhasználási Feltételek</h1>
+        <div class="meta">2026. szeptember 16-tól hatályos · Az Until He Comes iOS alkalmazásra vonatkozik</div>
+
+        <h2>A Feltételek Elfogadása</h2>
+        <p>Az Until He Comes ("Alkalmazás") letöltésével, telepítésével vagy használatával elfogadod ezeket a Felhasználási Feltételeket. Ha nem értesz egyet, kérjük, ne használd az Alkalmazást.</p>
+
+        <h2>Az Alkalmazás Használatára Vonatkozó Licenc</h2>
+        <p>E Feltételek alapján személyes, nem kizárólagos, át nem ruházható, visszavonható licencet kapsz az Alkalmazás használatára a birtokodban lévő vagy általad felügyelt Apple-eszközökön, saját személyes, nem kereskedelmi felhasználásra, az Apple App Store feltételeivel összhangban.</p>
+
+        <h2>Tartalom És Szellemi Tulajdon</h2>
+        <p>Az Alkalmazás dizájnja, kódja, válogatott üzenetszövege és vizuális megjelenítése Gustavo Alves tulajdona. A bibliai idézetek közkincs bibliafordításokból származnak — a World English Bible (angol), João Ferreira de Almeida fordítása (portugál), a Reina-Valera fordítás (spanyol), Luther Bibliája (német), a Martin Biblia (francia), a Riveduta Biblia (olasz), a Union Version (kínai, 和合本), a Zsinati fordítás (orosz), a Meidzsi/Taisó fordítás (japán), a Korean Revised Version (koreai) és a Statenvertaling (holland) — mindegyik világszerte mentes a szerzői jogi korlátozásoktól. Nem másolhatod, módosíthatod, fejtheted vissza, terjesztheted újra, vagy hozhatsz létre származékos műveket magából az Alkalmazásból, azon túl, amit a vonatkozó jog kifejezetten megenged.</p>
+
+        <h2>Az Alkalmazás Tartalmának Jellege</h2>
+        <p>Az Until He Comes egy sajátos keresztény perspektívát mutat be az éberségről és a Krisztus visszatérésére való készenlétről, amely azon a gondolaton alapul, hogy "senki sem tudja sem a napot, sem az órát" (Máté 24:36). Ez egy független alkalmazás, amely nem kapcsolódik, nincs jóváhagyva vagy készítve semmilyen konkrét egyház vagy felekezet nevében, és nem helyettesíti a lelkipásztori vezetést, a teológiai tanulmányokat vagy a közösségi istentiszteletet.</p>
+
+        <h2>Elfogadható Használat</h2>
+        <p>Vállalod, hogy nem használod az Alkalmazást olyan módon, amely sérti a vonatkozó jogot, mások jogait sérti, vagy megkísérli megzavarni, visszafejteni vagy kinyerni az Alkalmazás forráskódját vagy erőforrásait azon túl, ami a tervezett személyes használatodhoz szükséges.</p>
+
+        <h2>Szavatosság Kizárása</h2>
+        <p>Az Alkalmazás "jelen állapotában" és "elérhetőség szerint" kerül biztosításra, bármilyen kifejezett vagy hallgatólagos garancia nélkül. Nem garantáljuk, hogy az Alkalmazás megszakítás nélküli, hibamentes vagy mindig elérhető lesz.</p>
+
+        <h2>Felelősség Korlátozása</h2>
+        <p>A törvény által megengedett legteljesebb mértékben Gustavo Alves nem vállal felelősséget az Alkalmazás használatából vagy használatának lehetetlenségéből eredő közvetett, véletlen vagy következményes károkért.</p>
+
+        <h2>Az Alkalmazás Vagy E Feltételek Változásai</h2>
+        <p>Időről időre frissíthetjük az Alkalmazást vagy e Feltételeket. Az Alkalmazás további használata a változások hatálybalépése után azt jelenti, hogy elfogadod a frissített Feltételeket.</p>
+
+        <h2>Megszüntetés</h2>
+        <p>Bármikor abbahagyhatod az Alkalmazás használatát a törlésével. Bármikor felfüggeszthetjük vagy megszüntethetjük az Alkalmazást, egészben vagy részben.</p>
+
+        <h2>Irányadó Jog</h2>
+        <p>E Feltételekre Portugália jogszabályai irányadók, azok kollíziós jogi elveinek figyelembevétele nélkül.</p>
+
+        <h2>Lépj Kapcsolatba Velünk</h2>
+        <p>Az e Feltételekkel kapcsolatos kérdéseket a gustavoalvesalvesgustavo@gmail.com címre küldheted.</p>
+      </div>
+
+      <div class="lang" data-lang="cs" hidden>
+        <h1>Podmínky Užívání</h1>
+        <div class="meta">Platné od 16. září 2026 · Vztahuje se na aplikaci Until He Comes pro iOS</div>
+
+        <h2>Přijetí Podmínek</h2>
+        <p>Stažením, instalací nebo používáním aplikace Until He Comes ("Aplikace") souhlasíte s těmito Podmínkami užívání. Pokud nesouhlasíte, Aplikaci prosím nepoužívejte.</p>
+
+        <h2>Licence K Používání Aplikace</h2>
+        <p>Na základě těchto Podmínek vám je udělena osobní, nevýhradní, nepřenosná, odvolatelná licence k používání Aplikace na zařízeních Apple, která vlastníte nebo ovládáte, pro vaše vlastní osobní, nekomerční použití, v souladu s podmínkami App Store společnosti Apple.</p>
+
+        <h2>Obsah A Duševní Vlastnictví</h2>
+        <p>Design, kód, vybraný text zpráv a vizuální prezentace Aplikace patří Gustavu Alvesovi. Biblické citace pocházejí z biblických překladů ve veřejné doméně — World English Bible (angličtina), překlad Joãa Ferreiry de Almeidy (portugalština), překlad Reina-Valera (španělština), Lutherova bible (němčina), Martinova bible (francouzština), bible Riveduta (italština), Union Version (čínština, 和合本), Synodální překlad (ruština), překlad Meiji/Taishō (japonština), Korean Revised Version (korejština) a Statenvertaling (nizozemština) — všechny celosvětově bez autorskoprávních omezení. Nesmíte kopírovat, upravovat, zpětně analyzovat, dále šířit ani vytvářet odvozená díla ze samotné Aplikace nad rámec toho, co výslovně povoluje platné právo.</p>
+
+        <h2>Povaha Obsahu Této Aplikace</h2>
+        <p>Until He Comes představuje určitou křesťanskou perspektivu bdělosti a připravenosti na Kristův druhý příchod, zaměřenou na myšlenku, že "ten den a hodinu nezná nikdo" (Matouš 24:36). Jde o nezávislou aplikaci, nespojenou s žádnou konkrétní církví či denominací, jí neschválenou ani jejím jménem vytvořenou, a nenahrazuje pastorační vedení, teologické studium ani společenství bohoslužby.</p>
+
+        <h2>Přijatelné Použití</h2>
+        <p>Souhlasíte, že Aplikaci nebudete používat žádným způsobem, který porušuje platné právo, zasahuje do práv jiných osob, nebo se pokouší narušit, zpětně analyzovat či extrahovat zdrojový kód nebo prostředky Aplikace nad rámec toho, co je potřebné pro vaše zamýšlené osobní použití.</p>
+
+        <h2>Žádná Záruka</h2>
+        <p>Aplikace je poskytována "tak, jak je" a "podle dostupnosti", bez jakýchkoli záruk, výslovných ani předpokládaných. Nezaručujeme, že Aplikace bude nepřetržitá, bezchybná nebo vždy dostupná.</p>
+
+        <h2>Omezení Odpovědnosti</h2>
+        <p>V nejširším rozsahu povoleném zákonem nebude Gustavo Alves odpovědný za žádné nepřímé, náhodné nebo následné škody vzniklé z vašeho používání Aplikace nebo z nemožnosti ji používat.</p>
+
+        <h2>Změny Aplikace Nebo Těchto Podmínek</h2>
+        <p>Aplikaci nebo tyto Podmínky můžeme čas od času aktualizovat. Pokračující používání Aplikace po nabytí účinnosti změn znamená, že přijímáte aktualizované Podmínky.</p>
+
+        <h2>Ukončení</h2>
+        <p>Používání Aplikace můžete kdykoli ukončit jejím smazáním. Aplikaci můžeme kdykoli pozastavit nebo ukončit, zcela nebo zčásti.</p>
+
+        <h2>Rozhodné Právo</h2>
+        <p>Tyto Podmínky se řídí právem Portugalska, bez ohledu na jeho kolizní normy.</p>
+
+        <h2>Kontaktujte Nás</h2>
+        <p>Dotazy ohledně těchto Podmínek lze zasílat na gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+
+      <div class="lang" data-lang="ro" hidden>
+        <h1>Termeni de Utilizare</h1>
+        <div class="meta">În vigoare de la 16 septembrie 2026 · Se aplică aplicației iOS Until He Comes</div>
+
+        <h2>Acceptarea Termenilor</h2>
+        <p>Prin descărcarea, instalarea sau utilizarea Until He Comes ("Aplicația"), ești de acord cu acești Termeni de Utilizare. Dacă nu ești de acord, te rugăm să nu folosești Aplicația.</p>
+
+        <h2>Licență de Utilizare a Aplicației</h2>
+        <p>Sub rezerva acestor Termeni, ți se acordă o licență personală, neexclusivă, netransferabilă, revocabilă de a utiliza Aplicația pe dispozitivele Apple pe care le deții sau le controlezi, pentru uzul tău personal, necomercial, în conformitate cu termenii App Store al Apple.</p>
+
+        <h2>Conținut Și Proprietate Intelectuală</h2>
+        <p>Designul, codul, textul mesajelor selectate și prezentarea vizuală a Aplicației aparțin lui Gustavo Alves. Citatele biblice provin din traduceri ale Bibliei aflate în domeniul public — World English Bible (engleză), traducerea lui João Ferreira de Almeida (portugheză), traducerea Reina-Valera (spaniolă), Biblia lui Luther (germană), Biblia Martin (franceză), Biblia Riveduta (italiană), Union Version (chineză, 和合本), Traducerea Sinodală (rusă), traducerea Meiji/Taishō (japoneză), Korean Revised Version (coreeană) și Statenvertaling (olandeză) — toate libere de restricții de drepturi de autor la nivel mondial. Nu ai voie să copiezi, modifici, decompilezi, redistribui sau creezi opere derivate din Aplicație dincolo de ceea ce legea aplicabilă permite în mod expres.</p>
+
+        <h2>Natura Conținutului Acestei Aplicații</h2>
+        <p>Until He Comes prezintă o perspectivă creștină specifică asupra vegherii și pregătirii pentru revenirea lui Hristos, centrată pe ideea că "nimeni nu știe ziua sau ceasul" (Matei 24:36). Este o aplicație independentă, neafiliată, neaprobată sau produsă în numele vreunei biserici sau denominațiuni specifice, și nu înlocuiește îndrumarea pastorală, studiul teologic sau închinarea în comunitate.</p>
+
+        <h2>Utilizare Acceptabilă</h2>
+        <p>Ești de acord să nu folosești Aplicația în niciun mod care încalcă legea aplicabilă, încalcă drepturile altora, sau încearcă să perturbe, decompileze sau extragă codul sursă ori resursele Aplicației dincolo de ceea ce este necesar pentru uzul tău personal prevăzut.</p>
+
+        <h2>Fără Garanție</h2>
+        <p>Aplicația este furnizată "ca atare" și "conform disponibilității", fără garanții de niciun fel, exprese sau implicite. Nu garantăm că Aplicația va fi neîntreruptă, fără erori sau întotdeauna disponibilă.</p>
+
+        <h2>Limitarea Răspunderii</h2>
+        <p>În măsura maximă permisă de lege, Gustavo Alves nu va fi răspunzător pentru niciun fel de daune indirecte, incidentale sau pe cale de consecință rezultate din utilizarea de către tine a Aplicației sau din imposibilitatea de a o utiliza.</p>
+
+        <h2>Modificări Ale Aplicației Sau Ale Acestor Termeni</h2>
+        <p>Putem actualiza periodic Aplicația sau acești Termeni. Utilizarea continuă a Aplicației după intrarea în vigoare a modificărilor înseamnă că accepți Termenii actualizați.</p>
+
+        <h2>Încetare</h2>
+        <p>Poți înceta oricând utilizarea Aplicației, ștergând-o. Putem suspenda sau întrerupe Aplicația, integral sau parțial, în orice moment.</p>
+
+        <h2>Legea Aplicabilă</h2>
+        <p>Acești Termeni sunt guvernați de legile Portugaliei, fără a ține cont de principiile privind conflictul de legi ale acesteia.</p>
+
+        <h2>Contactează-ne</h2>
+        <p>Întrebările despre acești Termeni pot fi trimise la gustavoalvesalvesgustavo@gmail.com.</p>
+      </div>
+    </article>
+  </main>
+
+  <footer>Until He Comes</footer>
+</div>
+
+<script>
+  const tabs = document.getElementById('tabs');
+  const articles = { privacy: document.getElementById('privacy'), terms: document.getElementById('terms') };
+
+  function show(name) {
+    Object.entries(articles).forEach(([key, el]) => { el.hidden = key !== name; });
+    [...tabs.children].forEach((btn) => btn.classList.toggle('active', btn.dataset.tab === name));
+  }
+
+  tabs.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const name = btn.dataset.tab;
+    history.replaceState(null, '', '#' + name);
+    show(name);
+  });
+
+  const initial = location.hash.replace('#', '');
+  show(initial === 'terms' ? 'terms' : 'privacy');
+
+  // Per-viewer convenience only (which look/language they prefer), not shared state —
+  // localStorage is the right tool here, per-viewer and fine to lose in a private window. This
+  // page's own language toggle is independent of the app's in-app language picker — this is a
+  // public web page anyone can open, not just app users with a saved preference.
+  const themeToggle = document.getElementById('theme-toggle');
+  const root = document.documentElement;
+
+  function currentTheme() {
+    const stored = (() => {
+      try { return localStorage.getItem('until-legal-theme'); } catch { return null; }
+    })();
+    if (stored === 'light' || stored === 'dark') return stored;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  function applyTheme(theme) {
+    root.dataset.theme = theme;
+    themeToggle.textContent = theme === 'dark' ? 'Light' : 'Dark';
+    themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+
+  applyTheme(currentTheme());
+
+  themeToggle.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    try { localStorage.setItem('until-legal-theme', next); } catch {}
+  });
+
+  const langSelect = document.getElementById('lang-select');
+  const langDivs = [...document.querySelectorAll('.lang')];
+  const navButtons = [...tabs.children];
+  const supportedLangs = [...langSelect.options].map((o) => o.value);
+
+  // Stored choice first, then the browser's own language (same idea as the app starting in the
+  // device's language), English otherwise.
+  function currentLang() {
+    try {
+      const stored = localStorage.getItem('until-legal-language');
+      if (supportedLangs.includes(stored)) return stored;
+    } catch {}
+    for (const tag of navigator.languages || [navigator.language || '']) {
+      const t = tag.toLowerCase();
+      if (t.startsWith('zh')) return /hant|tw|hk|mo/.test(t) ? 'zhHant' : 'zhHans';
+      const base = t.split('-')[0];
+      const match = base === 'no' || base === 'nn' ? 'nb' : base;
+      if (supportedLangs.includes(match)) return match;
+    }
+    return 'en';
+  }
+
+  function applyLang(lang) {
+    langDivs.forEach((el) => { el.hidden = el.dataset.lang !== lang; });
+    navButtons.forEach((btn) => { btn.textContent = btn.dataset[lang]; });
+    langSelect.value = lang;
+    document.documentElement.lang = lang;
+  }
+
+  applyLang(currentLang());
+
+  langSelect.addEventListener('change', () => {
+    applyLang(langSelect.value);
+    try { localStorage.setItem('until-legal-language', langSelect.value); } catch {}
+  });
+</script>
+
+</body></html>
