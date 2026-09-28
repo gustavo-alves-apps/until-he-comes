@@ -1725,9 +1725,12 @@
   const navButtons = [...tabs.children];
   const supportedLangs = [...langSelect.options].map((o) => o.value);
 
-  // Stored choice first, then the browser's own language (same idea as the app starting in the
-  // device's language), English otherwise.
+  // `?lang=` first — the app opens this page with its own in-app language, which can differ from
+  // the device's. Then the stored choice, then the browser's own language (same idea as the app
+  // starting in the device's language), English otherwise. The picker below still switches freely.
   function currentLang() {
+    const requested = new URLSearchParams(location.search).get('lang');
+    if (supportedLangs.includes(requested)) return requested;
     try {
       const stored = localStorage.getItem('until-legal-language');
       if (supportedLangs.includes(stored)) return stored;
